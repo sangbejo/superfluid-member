@@ -11,7 +11,7 @@ on:
         default: 'test'
       use_npm_package:
         description: 'Use NPM package of specific version instead of building'
-        required: false,
+        required: false
         default: ""
       only_network:
         description: 'Only a specific network is to be deployed'
