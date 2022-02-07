@@ -9,6 +9,10 @@ on:
         description: 'Protocol release version (test/master/v1/etc.)'
         required: true
         default: 'test'
+      use_npm_package:
+        description: 'Use NPM package of specific version instead of building'
+        required: false,
+        default: ""
       only_network:
         description: 'Only a specific network is to be deployed'
         required: false
@@ -53,17 +57,22 @@ jobs:
         with:
           node-version: 14.x
 
-      - name: Build
-        if: env.DO_SKIP != 1
+      - name: Build and deploy to ${{ matrix.network }}
+        if: env.DO_SKIP != 1 && github.event.inputs.use_npm_package == ""
         run: |
           yarn install --frozen-lockfile
           yarn build
-
-      - name: Build and deploy to ${{ matrix.network }}
-        if: env.DO_SKIP != 1
-        run: |
           cd packages/ethereum-contracts
           npx truffle exec --network ${{ matrix.network }} scripts/deploy-test-environment.js
+
+      - name: Download NPM package and deploy to ${{ matrix.network }}
+        if: env.DO_SKIP != 1 && github.event.inputs.use_npm_package != ""
+        run: |
+          cd packages/ethereum-contracts
+          cp ../../.npmrc.template .npmrc # use github package registry
+          yarn install @superfluid-finance/ethereum-contracts@${{github.event.inputs.use_npm_package}}
+          export DISABLE_NATIVE_TRUFFLE=1
+          npx truffle exec --network ${{ matrix.network }} node_moduels/scripts/@superfluid-finance/ethereum-contracts/deploy-test-environment.js
 
       - name: Etherscan verification of ${{ matrix.network }} deployment
         if: env.DO_SKIP != 1
