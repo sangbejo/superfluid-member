@@ -12,7 +12,7 @@ on:
       use_npm_package:
         description: 'Use NPM package of specific version instead of building'
         required: false
-        default: ""
+        default: ''
       only_network:
         description: 'Only a specific network is to be deployed'
         required: false
