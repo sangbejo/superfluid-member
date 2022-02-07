@@ -76,7 +76,7 @@ jobs:
           export DISABLE_NATIVE_TRUFFLE=1
           npx truffle exec --network ${{ matrix.network }} node_moduels/scripts/@superfluid-finance/ethereum-contracts/deploy-test-environment.js
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.CI_GITHUB_TOKEN }}
 
       - name: Etherscan verification of ${{ matrix.network }} deployment
         if: env.DO_SKIP != 1
