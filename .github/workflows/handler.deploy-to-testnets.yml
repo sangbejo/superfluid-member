@@ -70,7 +70,7 @@ jobs:
         run: |
           cd packages/ethereum-contracts
           cp ../../.npmrc.template .npmrc # use github package registry
-          yarn install @superfluid-finance/ethereum-contracts@${{github.event.inputs.use_npm_package}}
+          npm install @superfluid-finance/ethereum-contracts@${{github.event.inputs.use_npm_package}}
           export DISABLE_NATIVE_TRUFFLE=1
           npx truffle exec --network ${{ matrix.network }} node_moduels/scripts/@superfluid-finance/ethereum-contracts/deploy-test-environment.js
 
