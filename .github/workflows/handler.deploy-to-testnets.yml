@@ -58,7 +58,7 @@ jobs:
           node-version: 14.x
 
       - name: Build and deploy to ${{ matrix.network }}
-        if: env.DO_SKIP != 1 && github.event.inputs.use_npm_package == ""
+        if: ${{ env.DO_SKIP != 1 && github.event.inputs.use_npm_package == "" }}
         run: |
           yarn install --frozen-lockfile
           yarn build
@@ -66,7 +66,7 @@ jobs:
           npx truffle exec --network ${{ matrix.network }} scripts/deploy-test-environment.js
 
       - name: Download NPM package and deploy to ${{ matrix.network }}
-        if: env.DO_SKIP != 1 && github.event.inputs.use_npm_package != ""
+        if: ${{ env.DO_SKIP != 1 && github.event.inputs.use_npm_package != "" }}
         run: |
           cd packages/ethereum-contracts
           cp ../../.npmrc.template .npmrc # use github package registry
