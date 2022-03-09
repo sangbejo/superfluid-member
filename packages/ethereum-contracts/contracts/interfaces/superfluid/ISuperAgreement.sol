@@ -9,6 +9,9 @@ import { ISuperfluidToken } from "./ISuperfluidToken.sol";
  */
 interface ISuperAgreement {
 
+    /// Only host can update code
+    error OnlyHost();
+
     /**
      * @dev Get the type of the agreement class
      */

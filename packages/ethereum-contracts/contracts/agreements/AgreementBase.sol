@@ -30,7 +30,7 @@ abstract contract AgreementBase is
     function updateCode(address newAddress)
         external override
     {
-        require(msg.sender == _host, "only host can update code");
+        if (msg.sender != _host) revert OnlyHost();
         return _updateCodeAddress(newAddress);
     }
 

@@ -7,20 +7,55 @@ pragma solidity 0.8.12;
  */
 library CallUtils {
 
+    /// CallUtils: Target reverted when response.length is 0
+    error TargetReverted();
+
     /// @dev Get the revert message from a call
     /// @notice This is needed in order to get the human-readable revert message from a call
     /// @param res Response of the call
     /// @return Revert message string
-    // FIXME (0.8.12): Custom Errors, per 0.8.0 feature maybe?
     function getRevertMsg(bytes memory res) internal pure returns (string memory) {
         // If the _res length is less than 68, then the transaction failed silently (without a revert message)
-        if (res.length < 68) return "CallUtils: target reverted";
+        if (res.length == 0) return "CallUtils: target reverted";
         // solhint-disable-next-line no-inline-assembly
         assembly {
             // Slice the sighash.
             res := add(res, 0x04)
         }
         return abi.decode(res, (string)); // All that remains is the revert string
+    }
+
+    /// @notice Handles the returned revert response data
+    /// TODO else if retData first 4 bytes is Panic(uint256) => revert it in assembly
+    ///      else this is a custom error and we should revert it in assembly
+    /// @param retData retData of the call
+    /// @return Revert message string
+    function revertFromReturnedData(bytes memory retData) internal pure returns (string memory) {
+        if (retData.length == 0) revert TargetReverted();
+
+        // keccak256("Error(string)") = 08c379a0
+        if (bytes4(retData) == bytes4(0x08c379a0)) {
+            // solhint-disable-next-line no-inline-assembly
+            assembly {
+                // Slice the sighash.
+                retData := add(retData, 0x04)
+            }
+            string memory err = abi.decode(retData, (string));
+            revert(err);
+        }
+
+        // keccak256("Panic(uint256)") = 4e487b71
+        // if (bytes4(retData) == bytes4(0x4e487b71)) {
+            
+        // }
+
+        uint256 length = retData.length;
+        // solhint-disable-next-line no-inline-assembly
+        assembly {
+            // Slice the sighash.
+            retData := add(retData, 0x04)
+            revert(0, length)
+        }
     }
 
     /**

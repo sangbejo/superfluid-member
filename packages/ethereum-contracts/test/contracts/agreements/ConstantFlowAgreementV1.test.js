@@ -10,6 +10,7 @@ const {
 
 const traveler = require("ganache-time-traveler");
 const CFADataModel = require("./ConstantFlowAgreementV1.data.js");
+const expectCustomErrorRevert = require("../utils/expectCustomRevert");
 
 const TEST_TRAVEL_TIME = 3600 * 24; // 24 hours
 
@@ -2128,17 +2129,18 @@ describe("Using ConstantFlowAgreement v1", function () {
                 const FakeSuperfluidMock =
                     artifacts.require("FakeSuperfluidMock");
                 const fakeHost = await FakeSuperfluidMock.new();
-                await expectRevert(
-                    fakeHost.callAgreement(
+                try {
+                    await fakeHost.callAgreement(
                         cfa.address,
                         cfa.contract.methods
                             .createFlow(superToken.address, bob, 1, "0x")
                             .encodeABI(),
                         {from: alice}
-                    ),
-                    "unauthorized host"
-                );
-                await expectRevert(
+                    );
+                } catch (error) {
+                    console.error(error);
+                }
+                await expectCustomErrorRevert(
                     fakeHost.callAgreement(
                         cfa.address,
                         cfa.contract.methods
@@ -2146,9 +2148,9 @@ describe("Using ConstantFlowAgreement v1", function () {
                             .encodeABI(),
                         {from: alice}
                     ),
-                    "unauthorized host"
+                    "UnauthorizedHost()"
                 );
-                await expectRevert(
+                await expectCustomErrorRevert(
                     fakeHost.callAgreement(
                         cfa.address,
                         cfa.contract.methods
@@ -2156,7 +2158,7 @@ describe("Using ConstantFlowAgreement v1", function () {
                             .encodeABI(),
                         {from: alice}
                     ),
-                    "unauthorized host"
+                    "UnauthorizedHost()"
                 );
             });
         });
@@ -3743,7 +3745,7 @@ describe("Using ConstantFlowAgreement v1", function () {
         });
 
         it("#10.4 ctx should not be exploited", async () => {
-            await expectRevert(
+            await expectCustomErrorRevert(
                 superfluid.callAgreement(
                     cfa.address,
                     cfa.contract.methods
@@ -3762,7 +3764,7 @@ describe("Using ConstantFlowAgreement v1", function () {
                         from: alice,
                     }
                 ),
-                "invalid ctx"
+                "InvalidCtx()"
             );
         });
     });

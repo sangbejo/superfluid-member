@@ -11,6 +11,7 @@ const SuperTokenFactory = artifacts.require("SuperTokenFactory");
 const TestEnvironment = require("../../TestEnvironment");
 
 const {web3tx, toWad, toBN} = require("@decentral.ee/web3-helpers");
+const expectCustomErrorRevert = require("../utils/expectCustomRevert");
 
 describe("Superfluid Host Contract", function () {
     this.timeout(300e3);
@@ -282,9 +283,9 @@ describe("Superfluid Host Contract", function () {
             });
 
             it("#2.3 only host can update agreement code", async () => {
-                await expectRevert(
+                await expectCustomErrorRevert(
                     t.contracts.ida.updateCode(ZERO_ADDRESS),
-                    "only host can update code"
+                    "OnlyHost()"
                 );
             });
 

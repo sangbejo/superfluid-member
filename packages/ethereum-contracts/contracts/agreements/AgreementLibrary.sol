@@ -24,6 +24,12 @@ library AgreementLibrary {
     using SafeCast for uint256;
     using SafeCast for int256;
 
+    /// Unauthorized host
+    error UnauthorizedHost();
+
+    /// Invalid Context
+    error InvalidCtx();
+
     /**************************************************************************
      * Context helpers
      *************************************************************************/
@@ -39,8 +45,8 @@ library AgreementLibrary {
         internal view
         returns (ISuperfluid.Context memory)
     {
-        require(token.getHost() == msg.sender, "unauthorized host");
-        require(ISuperfluid(msg.sender).isCtxValid(ctx), "invalid ctx");
+        if (token.getHost() != msg.sender) revert UnauthorizedHost();
+        if (!ISuperfluid(msg.sender).isCtxValid(ctx)) revert InvalidCtx();
         return ISuperfluid(msg.sender).decodeCtx(ctx);
     }
 

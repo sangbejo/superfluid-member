@@ -12,6 +12,7 @@ const {
 
 const IDASuperAppTester = artifacts.require("IDASuperAppTester");
 const TestEnvironment = require("../../TestEnvironment");
+const expectCustomErrorRevert = require("../utils/expectCustomRevert.js");
 
 const DEFAULT_INDEX_ID = "42";
 
@@ -1701,7 +1702,7 @@ describe("Using InstantDistributionAgreement v1", function () {
             const FakeSuperfluidMock = artifacts.require("FakeSuperfluidMock");
             const fakeHost = await FakeSuperfluidMock.new();
             const ida = t.sf.agreements.ida;
-            await expectRevert(
+            await expectCustomErrorRevert(
                 fakeHost.callAgreement(
                     ida.address,
                     ida.contract.methods
@@ -1709,9 +1710,9 @@ describe("Using InstantDistributionAgreement v1", function () {
                         .encodeABI(),
                     {from: alice}
                 ),
-                "unauthorized host"
+                "UnauthorizedHost()"
             );
-            await expectRevert(
+            await expectCustomErrorRevert(
                 fakeHost.callAgreement(
                     ida.address,
                     ida.contract.methods
@@ -1719,9 +1720,9 @@ describe("Using InstantDistributionAgreement v1", function () {
                         .encodeABI(),
                     {from: alice}
                 ),
-                "unauthorized host"
+                "UnauthorizedHost()"
             );
-            await expectRevert(
+            await expectCustomErrorRevert(
                 fakeHost.callAgreement(
                     ida.address,
                     ida.contract.methods
@@ -1729,9 +1730,9 @@ describe("Using InstantDistributionAgreement v1", function () {
                         .encodeABI(),
                     {from: alice}
                 ),
-                "unauthorized host"
+                "UnauthorizedHost()"
             );
-            await expectRevert(
+            await expectCustomErrorRevert(
                 fakeHost.callAgreement(
                     ida.address,
                     ida.contract.methods
@@ -1739,9 +1740,9 @@ describe("Using InstantDistributionAgreement v1", function () {
                         .encodeABI(),
                     {from: alice}
                 ),
-                "unauthorized host"
+                "UnauthorizedHost()"
             );
-            await expectRevert(
+            await expectCustomErrorRevert(
                 fakeHost.callAgreement(
                     ida.address,
                     ida.contract.methods
@@ -1755,7 +1756,7 @@ describe("Using InstantDistributionAgreement v1", function () {
                         .encodeABI(),
                     {from: alice}
                 ),
-                "unauthorized host"
+                "UnauthorizedHost()"
             );
         });
     });
