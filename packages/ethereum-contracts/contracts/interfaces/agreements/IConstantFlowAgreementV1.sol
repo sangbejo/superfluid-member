@@ -11,6 +11,42 @@ import { ISuperfluidToken } from "../superfluid/ISuperfluidToken.sol";
  */
 abstract contract IConstantFlowAgreementV1 is ISuperAgreement {
 
+    /// CFA: APP_RULE_NO_CRITICAL_RECEIVER_ACCOUNT
+    error AppRuleNoCriticalReceiverAccount();
+
+    /// CFA: deposit number too big
+    error DepositTooBig();
+
+    /// CFA: flow already exist
+    error FlowAlreadyExists();
+
+    /// CFA: flow does not exist
+    error FlowDoesNotExist();
+
+    /// CFA: flow rate too big
+    error FlowRateTooBig();
+
+    /// CFA: invalid flow rate
+    error InvalidFlowRate();
+
+    /// CFA: no self flow
+    error NoSelfFlow();
+
+    /// CFA: not enough available balance
+    error NotEnoughBalance();
+
+    /// CFA: not for negative flow rate
+    error NotForNegative();
+
+    /// CFA: receiver is zero
+    error ReceiverZeroAddress();
+
+    /// CFA: sender is zero
+    error SenderZeroAddress();
+    
+    /// CFA: sender account is not critical
+    error SenderNotCritical();
+
     /// @dev ISuperAgreement.agreementType implementation
     function agreementType() external override pure returns (bytes32) {
         return keccak256("org.superfluid-finance.agreements.ConstantFlowAgreement.v1");

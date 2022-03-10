@@ -111,7 +111,6 @@ contract InstantDistributionAgreementV1 is
                 (exist, sdata) = _getSubscriptionData(token, sidList[i]);
                 assert(exist);
                 assert(sdata.subId == subId);
-                //require(exist, "IDA: E_NO_SUBS");
                 iId = token.getAgreementStateSlot(
                     address(this),
                     account,
@@ -152,7 +151,7 @@ contract InstantDistributionAgreementV1 is
         ISuperfluid.Context memory context = AgreementLibrary.authorizeTokenAccess(token, ctx);
         address publisher = context.msgSender;
         bytes32 iId = _getPublisherId(publisher, indexId);
-        require(!_hasIndexData(token, iId), "IDA: E_INDEX_EXISTS");
+        if (_hasIndexData(token, iId)) revert IndexExists();
 
         token.createAgreement(iId, _encodeIndexData(IndexData(0, 0, 0)));
 
@@ -199,7 +198,7 @@ contract InstantDistributionAgreementV1 is
     {
         bytes32 iId = _getPublisherId(publisher, indexId);
         (bool exist, IndexData memory idata) = _getIndexData(token, iId);
-        require(exist, "IDA: E_NO_INDEX");
+        if (!exist) revert NoIndex();
 
         uint256 totalUnits = uint256(idata.totalUnitsApproved + idata.totalUnitsPending);
         uint128 indexDelta = (amount / totalUnits).toUint128();
@@ -220,7 +219,7 @@ contract InstantDistributionAgreementV1 is
         ISuperfluid.Context memory context = AgreementLibrary.authorizeTokenAccess(token, ctx);
         address publisher = context.msgSender;
         (bytes32 iId, IndexData memory idata) = _loadIndexData(token, publisher, indexId);
-        require(indexValue >= idata.indexValue, "IDA: E_INDEX_GROW");
+        if (indexValue < idata.indexValue) revert IndexMustGrow();
 
         _updateIndex(token, publisher, indexId, iId, idata, indexValue, context.userData);
 
@@ -290,7 +289,7 @@ contract InstantDistributionAgreementV1 is
             userData);
 
         // check account solvency
-        require(!token.isAccountCriticalNow(publisher), "IDA: E_LOW_BALANCE");
+        if (token.isAccountCriticalNow(publisher)) revert IndexLowBalance();
     }
 
     function _loadIndexData(
@@ -306,7 +305,7 @@ contract InstantDistributionAgreementV1 is
         bool exist;
         iId = _getPublisherId(publisher, indexId);
         (exist, idata) = _getIndexData(token, iId);
-        require(exist, "IDA: E_NO_INDEX");
+        if (!exist) revert NoIndex();
     }
 
     /**************************************************************************
@@ -354,7 +353,7 @@ contract InstantDistributionAgreementV1 is
 
         if (vars.subscriptionExists) {
             // required condition check
-            require(vars.sdata.subId == _UNALLOCATED_SUB_ID, "IDA: E_SUBS_APPROVED");
+            if (vars.sdata.subId != _UNALLOCATED_SUB_ID) revert SubsApprovedAlready();
         }
 
         newCtx = ctx;
@@ -440,7 +439,7 @@ contract InstantDistributionAgreementV1 is
         ) = _loadAllData(token, publisher, subscriber, indexId, true);
 
         // should not revoke an pending(un-approved) subscription
-        require(vars.sdata.subId != _UNALLOCATED_SUB_ID, "IDA: E_SUBS_NOT_APPROVED");
+        if (vars.sdata.subId == _UNALLOCATED_SUB_ID) revert SubsNotApproved();
 
         cbStates = AgreementLibrary.createCallbackInputs(
             token,
@@ -648,7 +647,7 @@ contract InstantDistributionAgreementV1 is
         SubscriptionData memory sdata;
 
         (exist, sdata) = _getSubscriptionData(token, agreementId);
-        require(exist, "IDA: E_NO_SUBS");
+        if (!exist) revert NoSubs();
 
         publisher = sdata.publisher;
         indexId = sdata.indexId;
@@ -715,7 +714,7 @@ contract InstantDistributionAgreementV1 is
         }
 
         // both publisher and subscriber can delete a subscription
-        require(sender == publisher, "IDA: E_NOT_ALLOWED");
+        if (sender != publisher) revert DeleteNotAllowed(); 
 
         (
             vars.iId,
@@ -795,7 +794,7 @@ contract InstantDistributionAgreementV1 is
         ) = _loadAllData(token, publisher, subscriber, indexId, true);
 
         // required condition check
-        require(vars.sdata.subId == _UNALLOCATED_SUB_ID, "IDA: E_SUBS_APPROVED");
+        if (vars.sdata.subId != _UNALLOCATED_SUB_ID) revert SubsApprovedAlready();
 
         uint256 pendingDistribution = uint256(vars.idata.indexValue - vars.sdata.indexValue)
             * uint256(vars.sdata.units);
@@ -851,10 +850,10 @@ contract InstantDistributionAgreementV1 is
         iId = _getPublisherId(publisher, indexId);
         sId = _getSubscriptionId(subscriber, iId);
         (indexExists, idata) = _getIndexData(token, iId);
-        require(indexExists, "IDA: E_NO_INDEX");
+        if (!indexExists) revert NoIndex();
         (subscriptionExists, sdata) = _getSubscriptionData(token, sId);
         if (requireSubscriptionExisting) {
-            require(subscriptionExists, "IDA: E_NO_SUBS");
+            if (!subscriptionExists) revert NoSubs();
              // sanity check
             assert(sdata.publisher == publisher);
             assert(sdata.indexId == indexId);

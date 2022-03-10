@@ -93,7 +93,7 @@ contract ConstantFlowAgreementV1 is
         external view override
         returns (int96 flowRate)
     {
-        require(deposit < 2**95, "CFA: deposit number too big");
+        if (deposit >= 2**95) revert DepositTooBig();
         deposit = _clipDepositNumberRoundingDown(deposit);
         (uint256 liquidationPeriod, ) = _decode3PsData(token);
         uint256 flowrate1 = deposit / liquidationPeriod;
@@ -109,14 +109,13 @@ contract ConstantFlowAgreementV1 is
         external view override
         returns (uint256 deposit)
     {
-        require(flowRate >= 0, "CFA: not for negative flow rate");
+        if (flowRate < 0) revert NotForNegative();
         ISuperfluid host = ISuperfluid(token.getHost());
         ISuperfluidGovernance gov = ISuperfluidGovernance(host.getGovernance());
         uint256 minimumDeposit = gov.getConfigAsUint256(host, token, SUPERTOKEN_MINIMUM_DEPOSIT_KEY);
         uint256 pppConfig = gov.getConfigAsUint256(host, token, CFAV1_PPP_CONFIG_KEY);
         (uint256 liquidationPeriod, ) = SuperfluidGovernanceConfigs.decodePPPConfig(pppConfig);
-        require(uint256(int256(flowRate))
-            * liquidationPeriod <= uint256(int256(type(int96).max)), "CFA: flow rate too big");
+        if (uint256(int256(flowRate)) * liquidationPeriod > uint256(int256(type(int96).max))) revert FlowRateTooBig();
         uint256 calculatedDeposit = _calculateDeposit(flowRate, liquidationPeriod);
         return calculatedDeposit < minimumDeposit && flowRate > 0 ? minimumDeposit : calculatedDeposit;
     }
@@ -168,17 +167,17 @@ contract ConstantFlowAgreementV1 is
         returns(bytes memory newCtx)
     {
         FlowParams memory flowParams;
-        require(receiver != address(0), "CFA: receiver is zero");
+        if (receiver == address(0)) revert ReceiverZeroAddress();
         ISuperfluid.Context memory currentContext = AgreementLibrary.authorizeTokenAccess(token, ctx);
         flowParams.flowId = _generateFlowId(currentContext.msgSender, receiver);
         flowParams.sender = currentContext.msgSender;
         flowParams.receiver = receiver;
         flowParams.flowRate = flowRate;
         flowParams.userData = currentContext.userData;
-        require(flowParams.sender != flowParams.receiver, "CFA: no self flow");
-        require(flowParams.flowRate > 0, "CFA: invalid flow rate");
+        if (flowParams.sender == flowParams.receiver) revert NoSelfFlow();
+        if (flowParams.flowRate <= 0) revert InvalidFlowRate();
         (bool exist, FlowData memory oldFlowData) = _getAgreementData(token, flowParams.flowId);
-        require(!exist, "CFA: flow already exist");
+        if (exist) revert FlowAlreadyExists();
 
         if (ISuperfluid(msg.sender).isApp(ISuperApp(receiver)))
         {
@@ -207,17 +206,17 @@ contract ConstantFlowAgreementV1 is
         returns(bytes memory newCtx)
     {
         FlowParams memory flowParams;
-        require(receiver != address(0), "CFA: receiver is zero");
+        if (receiver == address(0)) revert ReceiverZeroAddress();
         ISuperfluid.Context memory currentContext = AgreementLibrary.authorizeTokenAccess(token, ctx);
         flowParams.flowId = _generateFlowId(currentContext.msgSender, receiver);
         flowParams.sender = currentContext.msgSender;
         flowParams.receiver = receiver;
         flowParams.flowRate = flowRate;
         flowParams.userData = currentContext.userData;
-        require(flowParams.sender != flowParams.receiver, "CFA: no self flow");
-        require(flowParams.flowRate > 0, "CFA: invalid flow rate");
+        if (flowParams.sender == flowParams.receiver) revert NoSelfFlow();
+        if (flowParams.flowRate <= 0) revert InvalidFlowRate();
         (bool exist, FlowData memory oldFlowData) = _getAgreementData(token, flowParams.flowId);
-        require(exist, "CFA: flow does not exist");
+        if (!exist) revert FlowDoesNotExist();
 
         if (ISuperfluid(msg.sender).isApp(ISuperApp(receiver))) {
             newCtx = _changeFlowToApp(
@@ -245,8 +244,8 @@ contract ConstantFlowAgreementV1 is
         returns(bytes memory newCtx)
     {
         FlowParams memory flowParams;
-        require(sender != address(0), "CFA: sender is zero");
-        require(receiver != address(0), "CFA: receiver is zero");
+        if (sender == address(0)) revert SenderZeroAddress();
+        if (receiver == address(0)) revert ReceiverZeroAddress();
         ISuperfluid.Context memory currentContext = AgreementLibrary.authorizeTokenAccess(token, ctx);
         flowParams.flowId = _generateFlowId(sender, receiver);
         flowParams.sender = sender;
@@ -254,7 +253,7 @@ contract ConstantFlowAgreementV1 is
         flowParams.flowRate = 0;
         flowParams.userData = currentContext.userData;
         (bool exist, FlowData memory oldFlowData) = _getAgreementData(token, flowParams.flowId);
-        require(exist, "CFA: flow does not exist");
+        if (!exist) revert FlowDoesNotExist();
 
         int256 availableBalance;
         (availableBalance,,) = token.realtimeBalanceOf(sender, currentContext.timestamp);
@@ -265,7 +264,7 @@ contract ConstantFlowAgreementV1 is
             // liquidation should only for sender that is critical, unless sender or receiver is a jailed app
             if (!ISuperfluid(msg.sender).isAppJailed(ISuperApp(sender)) &&
                 !ISuperfluid(msg.sender).isAppJailed(ISuperApp(receiver))) {
-                require(availableBalance < 0, "CFA: sender account is not critical");
+                if (availableBalance >= 0) revert SenderNotCritical();
             }
         }
 
@@ -667,7 +666,7 @@ contract ConstantFlowAgreementV1 is
                             userDamageAmount
                         );
                     } else {
-                        revert("CFA: APP_RULE_NO_CRITICAL_RECEIVER_ACCOUNT");
+                        revert AppRuleNoCriticalReceiverAccount();
                     }
                 }
             }
@@ -792,7 +791,7 @@ contract ConstantFlowAgreementV1 is
         if (currentContext.callType != ContextDefinitions.CALL_INFO_CALL_TYPE_APP_CALLBACK ||
             currentContext.appAllowanceToken != token) {
             (int256 availableBalance,,) = token.realtimeBalanceOf(currentContext.msgSender, currentContext.timestamp);
-            require(availableBalance >= 0, "CFA: not enough available balance");
+            if (availableBalance < 0) revert NotEnoughBalance();
         }
     }
 

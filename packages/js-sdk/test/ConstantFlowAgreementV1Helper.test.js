@@ -1,5 +1,6 @@
 const {toBN} = require("@decentral.ee/web3-helpers");
-const {expectRevert} = require("@openzeppelin/test-helpers");
+/* eslint-disable-next-line max-len */
+const expectCustomErrorRevert = require("@superfluid-finance/ethereum-contracts/test/contracts/utils/expectCustomRevert");
 const TestEnvironment = require("@superfluid-finance/ethereum-contracts/test/TestEnvironment");
 
 describe("ConstantFlowAgreementV1Helper class", function () {
@@ -227,14 +228,14 @@ describe("ConstantFlowAgreementV1Helper class", function () {
         });
 
         it("by wrong person", async () => {
-            await expectRevert(
+            await expectCustomErrorRevert(
                 sf.cfa.deleteFlow({
                     superToken: superToken.address,
                     sender: alice,
                     receiver: bob,
                     by: admin,
                 }),
-                "CFA: sender account is not critical"
+                "CFA: SenderNotCritical()"
             );
         });
 

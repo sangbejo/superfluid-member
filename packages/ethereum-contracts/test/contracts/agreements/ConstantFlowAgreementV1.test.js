@@ -1,6 +1,6 @@
 const TestEnvironment = require("../../TestEnvironment");
 
-const {BN, expectRevert, expectEvent} = require("@openzeppelin/test-helpers");
+const {BN, expectEvent} = require("@openzeppelin/test-helpers");
 const {web3tx, toWad, toBN} = require("@decentral.ee/web3-helpers");
 const {
     shouldCreateFlow,
@@ -300,50 +300,50 @@ describe("Using ConstantFlowAgreement v1", function () {
             });
 
             it("#1.1.2 should reject when there is not enough balance", async () => {
-                await expectRevert(
+                await expectCustomErrorRevert(
                     t.sf.cfa.createFlow({
                         superToken: superToken.address,
                         sender: t.aliases[sender],
                         receiver: t.aliases[receiver],
                         flowRate: FLOW_RATE1.toString(),
                     }),
-                    "CFA: not enough available balance"
+                    "NotEnoughBalance()"
                 );
             });
 
             it("#1.1.3 should reject when zero flow rate", async () => {
-                await expectRevert(
+                await expectCustomErrorRevert(
                     t.sf.cfa.createFlow({
                         superToken: superToken.address,
                         sender: t.aliases[sender],
                         receiver: t.aliases[receiver],
                         flowRate: "0",
                     }),
-                    "CFA: invalid flow rate"
+                    "InvalidFlowRate()"
                 );
             });
 
             it("#1.1.4 should reject when negative flow rate", async () => {
-                await expectRevert(
+                await expectCustomErrorRevert(
                     t.sf.cfa.createFlow({
                         superToken: superToken.address,
                         sender: t.aliases[sender],
                         receiver: t.aliases[receiver],
                         flowRate: "-1",
                     }),
-                    "CFA: invalid flow rate"
+                    "InvalidFlowRate()"
                 );
             });
 
             it("#1.1.5 should reject when self flow", async () => {
-                await expectRevert(
+                await expectCustomErrorRevert(
                     t.sf.cfa.createFlow({
                         superToken: superToken.address,
                         sender: t.aliases[sender],
                         receiver: t.aliases[sender],
                         flowRate: FLOW_RATE1.toString(),
                     }),
-                    "CFA: no self flow"
+                    "NoSelfFlow()"
                 );
             });
 
@@ -357,19 +357,19 @@ describe("Using ConstantFlowAgreement v1", function () {
                     receiver,
                     flowRate: FLOW_RATE1,
                 });
-                await expectRevert(
+                await expectCustomErrorRevert(
                     t.sf.cfa.createFlow({
                         superToken: superToken.address,
                         sender: t.aliases[sender],
                         receiver: t.aliases[receiver],
                         flowRate: FLOW_RATE1.toString(),
                     }),
-                    "CFA: flow already exist"
+                    "FlowAlreadyExists()"
                 );
             });
 
             it("#1.1.7 should reject when overflow flow rate", async () => {
-                await expectRevert(
+                await expectCustomErrorRevert(
                     t.sf.cfa.createFlow({
                         superToken: superToken.address,
                         sender: t.aliases[sender],
@@ -381,14 +381,14 @@ describe("Using ConstantFlowAgreement v1", function () {
             });
 
             it("#1.1.8 should reject when receiver is zero address", async () => {
-                await expectRevert(
+                await expectCustomErrorRevert(
                     t.sf.cfa.createFlow({
                         superToken: superToken.address,
                         sender: t.aliases[sender],
                         receiver: ZERO_ADDRESS,
                         flowRate: FLOW_RATE1.toString(),
                     }),
-                    "CFA: receiver is zero"
+                    "ReceiverZeroAddress()"
                 );
             });
         });
@@ -443,55 +443,55 @@ describe("Using ConstantFlowAgreement v1", function () {
             });
 
             it("#1.2.4 should not update with zero flow rate", async () => {
-                await expectRevert(
+                await expectCustomErrorRevert(
                     t.sf.cfa.updateFlow({
                         superToken: superToken.address,
                         sender: t.aliases[sender],
                         receiver: t.aliases[receiver],
                         flowRate: "0",
                     }),
-                    "CFA: invalid flow rate"
+                    "InvalidFlowRate()"
                 );
             });
 
             it("#1.2.5 should not update with negative flow rate", async () => {
-                await expectRevert(
+                await expectCustomErrorRevert(
                     t.sf.cfa.updateFlow({
                         superToken: superToken.address,
                         sender: t.aliases[sender],
                         receiver: t.aliases[receiver],
                         flowRate: "-1",
                     }),
-                    "CFA: invalid flow rate"
+                    "InvalidFlowRate()"
                 );
             });
 
             it("#1.2.6 should not update non existing flow", async () => {
-                await expectRevert(
+                await expectCustomErrorRevert(
                     t.sf.cfa.updateFlow({
                         superToken: superToken.address,
                         sender: t.aliases[sender],
                         receiver: t.aliases[agent],
                         flowRate: FLOW_RATE1.toString(),
                     }),
-                    "CFA: flow does not exist"
+                    "FlowDoesNotExist()"
                 );
             });
 
             it("#1.2.7 should not update non existing flow (self flow)", async () => {
-                await expectRevert(
+                await expectCustomErrorRevert(
                     t.sf.cfa.updateFlow({
                         superToken: superToken.address,
                         sender: t.aliases[sender],
                         receiver: t.aliases[sender],
                         flowRate: FLOW_RATE1.toString(),
                     }),
-                    "CFA: no self flow"
+                    "NoSelfFlow()"
                 );
             });
 
             it("#1.2.8 should reject when there is not enough balance", async () => {
-                await expectRevert(
+                await expectCustomErrorRevert(
                     t.sf.cfa.updateFlow({
                         superToken: superToken.address,
                         sender: t.aliases[sender],
@@ -500,12 +500,12 @@ describe("Using ConstantFlowAgreement v1", function () {
                             .div(toBN(LIQUIDATION_PERIOD).sub(toBN(60)))
                             .toString(),
                     }),
-                    "CFA: not enough available balance"
+                    "NotEnoughBalance()"
                 );
             });
 
             it("#1.2.9 should reject when overflow flow rate", async () => {
-                await expectRevert(
+                await expectCustomErrorRevert(
                     t.sf.cfa.updateFlow({
                         superToken: superToken.address,
                         sender: t.aliases[sender],
@@ -517,14 +517,14 @@ describe("Using ConstantFlowAgreement v1", function () {
             });
 
             it("#1.2.10 should reject when receiver is zero address", async () => {
-                await expectRevert(
+                await expectCustomErrorRevert(
                     t.sf.cfa.updateFlow({
                         superToken: superToken.address,
                         sender: t.aliases[sender],
                         receiver: ZERO_ADDRESS,
                         flowRate: FLOW_RATE1.toString(),
                     }),
-                    "CFA: receiver is zero"
+                    "ReceiverZeroAddress()"
                 );
             });
         });
@@ -588,36 +588,36 @@ describe("Using ConstantFlowAgreement v1", function () {
             });
 
             it("#1.3.3 should not delete non-existing flow", async () => {
-                await expectRevert(
+                await expectCustomErrorRevert(
                     t.sf.cfa.deleteFlow({
                         superToken: superToken.address,
                         sender: t.aliases[sender],
                         receiver: t.aliases[agent],
                     }),
-                    "CFA: flow does not exist"
+                    "FlowDoesNotExist()"
                 );
             });
 
             it("#1.3.4 should reject when receiver is zero address", async () => {
-                await expectRevert(
+                await expectCustomErrorRevert(
                     t.sf.cfa.deleteFlow({
                         superToken: superToken.address,
                         sender: t.aliases[sender],
                         receiver: ZERO_ADDRESS,
                     }),
-                    "CFA: receiver is zero"
+                    "ReceiverZeroAddress()"
                 );
             });
 
             it("#1.3.5 should reject when sender is zero address", async () => {
-                await expectRevert(
+                await expectCustomErrorRevert(
                     t.sf.cfa.deleteFlow({
                         superToken: superToken.address,
                         sender: ZERO_ADDRESS,
                         receiver: t.aliases[agent],
                         by: t.aliases[sender],
                     }),
-                    "CFA: sender is zero"
+                    "SenderZeroAddress()"
                 );
             });
         });
@@ -638,39 +638,39 @@ describe("Using ConstantFlowAgreement v1", function () {
                 t.initializePlotData(true); // observing all accounts
             });
 
-            it("#1.4.1 should reject when sender account is not critical", async () => {
-                await expectRevert(
+            it("#1.4.1 should reject when SenderNotCritical()", async () => {
+                await expectCustomErrorRevert(
                     t.sf.cfa.deleteFlow({
                         superToken: superToken.address,
                         sender: t.aliases[sender],
                         receiver: t.aliases[receiver],
                         by: t.aliases[agent],
                     }),
-                    "CFA: sender account is not critical"
+                    "CFA: SenderNotCritical()"
                 );
             });
 
             it("#1.4.2 should reject when sender is zero address", async () => {
-                await expectRevert(
+                await expectCustomErrorRevert(
                     t.sf.cfa.deleteFlow({
                         superToken: superToken.address,
                         sender: ZERO_ADDRESS,
                         receiver: t.aliases[receiver],
                         by: t.aliases[agent],
                     }),
-                    "CFA: sender is zero"
+                    "SenderZeroAddress()"
                 );
             });
 
-            it("#1.4.3 should reject when sender account is not critical", async () => {
-                await expectRevert(
+            it("#1.4.3 should reject when SenderNotCritical()", async () => {
+                await expectCustomErrorRevert(
                     t.sf.cfa.deleteFlow({
                         superToken: superToken.address,
                         sender: t.aliases[sender],
                         receiver: t.aliases[receiver],
                         by: t.aliases[agent],
                     }),
-                    "CFA: sender account is not critical"
+                    "CFA: SenderNotCritical()"
                 );
             });
 
@@ -1875,34 +1875,34 @@ describe("Using ConstantFlowAgreement v1", function () {
             });
 
             it("#1.6.6 should reject when account is not critical", async () => {
-                await expectRevert(
+                await expectCustomErrorRevert(
                     t.sf.cfa.deleteFlow({
                         superToken: superToken.address,
                         sender: t.aliases[sender],
                         receiver: t.aliases[receiver],
                         by: t.aliases[agent],
                     }),
-                    "CFA: sender account is not critical"
+                    "CFA: SenderNotCritical()"
                 );
 
-                await expectRevert(
+                await expectCustomErrorRevert(
                     t.sf.cfa.deleteFlow({
                         superToken: superToken.address,
                         sender: t.aliases[sender],
                         receiver: t.aliases[agent],
                         by: t.aliases[receiver],
                     }),
-                    "CFA: sender account is not critical"
+                    "CFA: SenderNotCritical()"
                 );
 
-                await expectRevert(
+                await expectCustomErrorRevert(
                     t.sf.cfa.deleteFlow({
                         superToken: superToken.address,
                         sender: t.aliases[agent],
                         receiver: t.aliases[sender],
                         by: t.aliases[receiver],
                     }),
-                    "CFA: sender account is not critical"
+                    "CFA: SenderNotCritical()"
                 );
             });
 
@@ -1950,14 +1950,14 @@ describe("Using ConstantFlowAgreement v1", function () {
                     allowCriticalAccount: true,
                 });
 
-                await expectRevert(
+                await expectCustomErrorRevert(
                     t.sf.cfa.deleteFlow({
                         superToken: superToken.address,
                         sender: t.aliases[sender],
                         receiver: t.aliases[agent],
                         by: t.aliases[receiver],
                     }),
-                    "CFA: sender account is not critical"
+                    "CFA: SenderNotCritical()"
                 );
             });
 
@@ -2004,14 +2004,14 @@ describe("Using ConstantFlowAgreement v1", function () {
                     allowCriticalAccount: true,
                 });
 
-                await expectRevert(
+                await expectCustomErrorRevert(
                     t.sf.cfa.deleteFlow({
                         superToken: superToken.address,
                         sender: t.aliases[sender],
                         receiver: t.aliases[agent],
                         by: t.aliases[receiver],
                     }),
-                    "CFA: sender account is not critical"
+                    "CFA: SenderNotCritical()"
                 );
             });
         });
@@ -2075,9 +2075,9 @@ describe("Using ConstantFlowAgreement v1", function () {
                 await test("10000000000000");
                 const maxDeposit = toBN(1).shln(95).subn(1);
                 await test(maxDeposit);
-                expectRevert(
+                expectCustomErrorRevert(
                     test(maxDeposit.addn(1)),
-                    "CFA: deposit number too big"
+                    "DepositTooBig()"
                 );
             });
 
@@ -2108,20 +2108,20 @@ describe("Using ConstantFlowAgreement v1", function () {
                 await test(0);
                 await test(1);
                 await test("10000000000000");
-                await expectRevert(
+                await expectCustomErrorRevert(
                     cfa.getDepositRequiredForFlowRate.call(
                         superToken.address,
                         toBN("-100000000000000")
                     ),
-                    "CFA: not for negative flow rate"
+                    "NotForNegative()"
                 );
                 const maxFlowRate = toBN(1)
                     .shln(95)
                     .div(toBN(LIQUIDATION_PERIOD));
                 await test(maxFlowRate);
-                await expectRevert(
+                await expectCustomErrorRevert(
                     test(maxFlowRate.addn(1)),
-                    "CFA: flow rate too big"
+                    "FlowRateTooBig()"
                 );
             });
 
@@ -2363,7 +2363,7 @@ describe("Using ConstantFlowAgreement v1", function () {
                         t.configs.MINIMUM_DEPOSIT.add(toBN(1))
                     )
                 );
-                await expectRevert(
+                await expectCustomErrorRevert(
                     shouldCreateFlow({
                         testenv: t,
                         superToken,
@@ -2371,7 +2371,7 @@ describe("Using ConstantFlowAgreement v1", function () {
                         receiver,
                         flowRate: FLOW_RATE1,
                     }),
-                    "CFA: not enough available balance"
+                    "NotEnoughBalance()"
                 );
             });
         });
@@ -2800,7 +2800,7 @@ describe("Using ConstantFlowAgreement v1", function () {
                 },
             };
 
-            await expectRevert(
+            await expectCustomErrorRevert(
                 shouldCreateFlow({
                     testenv: t,
                     superToken,
@@ -2809,7 +2809,7 @@ describe("Using ConstantFlowAgreement v1", function () {
                     mfa,
                     flowRate: FLOW_RATE1,
                 }),
-                "CFA: APP_RULE_NO_CRITICAL_RECEIVER_ACCOUNT"
+                "AppRuleNoCriticalReceiverAccount()"
             );
             await timeTravelOnceAndVerifyAll();
         });
@@ -3013,14 +3013,14 @@ describe("Using ConstantFlowAgreement v1", function () {
             await expectNetFlow(receiver1, mfaFlowRate(FLOW_RATE1, 50));
             await expectNetFlow(receiver2, mfaFlowRate(FLOW_RATE1, 50));
 
-            await expectRevert(
+            await expectCustomErrorRevert(
                 t.sf.cfa.deleteFlow({
                     superToken: superToken.address,
                     sender: t.aliases[sender],
                     receiver: app.address,
                     by: dan,
                 }),
-                "CFA: sender account is not critical"
+                "CFA: SenderNotCritical()"
             );
 
             const accountFlowInfo = await t.sf.cfa.getAccountFlowInfo({
@@ -3098,14 +3098,14 @@ describe("Using ConstantFlowAgreement v1", function () {
             await expectNetFlow(receiver1, mfaFlowRate(FLOW_RATE1, 75));
             await expectNetFlow(receiver2, mfaFlowRate(FLOW_RATE1, 75));
 
-            await expectRevert(
+            await expectCustomErrorRevert(
                 t.sf.cfa.deleteFlow({
                     superToken: superToken.address,
                     sender: app.address,
                     receiver: t.getAddress(receiver1),
                     by: dan,
                 }),
-                "CFA: sender account is not critical"
+                "CFA: SenderNotCritical()"
             );
 
             await timeTravelOnceAndVerifyAll({
@@ -3248,7 +3248,7 @@ describe("Using ConstantFlowAgreement v1", function () {
         });
 
         it("#2.20 createFlow via app action should respect deposit rule", async () => {
-            await expectRevert(
+            await expectCustomErrorRevert(
                 t.sf.host.callAppAction(
                     app.address,
                     app.contract.methods
@@ -3260,7 +3260,7 @@ describe("Using ConstantFlowAgreement v1", function () {
                         )
                         .encodeABI()
                 ),
-                "CFA: not enough available balance"
+                "NotEnoughBalance()"
             );
         });
 
@@ -3281,7 +3281,7 @@ describe("Using ConstantFlowAgreement v1", function () {
                 },
             };
 
-            await expectRevert(
+            await expectCustomErrorRevert(
                 shouldCreateFlow({
                     testenv: t,
                     superToken,
@@ -3290,7 +3290,7 @@ describe("Using ConstantFlowAgreement v1", function () {
                     mfa,
                     flowRate: FLOW_RATE1,
                 }),
-                "CFA: APP_RULE_NO_CRITICAL_RECEIVER_ACCOUNT"
+                "AppRuleNoCriticalReceiverAccount()"
             );
         });
     });
@@ -3512,7 +3512,7 @@ describe("Using ConstantFlowAgreement v1", function () {
             )(cfa.address, superfluid.address, superToken2.address);
             t.addAlias("app", app.address);
 
-            await expectRevert(
+            await expectCustomErrorRevert(
                 web3tx(
                     t.sf.cfa.createFlow,
                     "alice -> app"
@@ -3522,7 +3522,7 @@ describe("Using ConstantFlowAgreement v1", function () {
                     receiver: app.address,
                     flowRate: FLOW_RATE1.toString(),
                 }),
-                "CFA: not enough available balance."
+                "NotEnoughBalance()."
             );
 
             // fund the app with
