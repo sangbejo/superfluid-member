@@ -646,7 +646,7 @@ describe("Using ConstantFlowAgreement v1", function () {
                         receiver: t.aliases[receiver],
                         by: t.aliases[agent],
                     }),
-                    "CFA: SenderNotCritical()"
+                    "SenderNotCritical()"
                 );
             });
 
@@ -670,7 +670,7 @@ describe("Using ConstantFlowAgreement v1", function () {
                         receiver: t.aliases[receiver],
                         by: t.aliases[agent],
                     }),
-                    "CFA: SenderNotCritical()"
+                    "SenderNotCritical()"
                 );
             });
 
@@ -1882,7 +1882,7 @@ describe("Using ConstantFlowAgreement v1", function () {
                         receiver: t.aliases[receiver],
                         by: t.aliases[agent],
                     }),
-                    "CFA: SenderNotCritical()"
+                    "SenderNotCritical()"
                 );
 
                 await expectCustomErrorRevert(
@@ -1892,7 +1892,7 @@ describe("Using ConstantFlowAgreement v1", function () {
                         receiver: t.aliases[agent],
                         by: t.aliases[receiver],
                     }),
-                    "CFA: SenderNotCritical()"
+                    "SenderNotCritical()"
                 );
 
                 await expectCustomErrorRevert(
@@ -1902,7 +1902,7 @@ describe("Using ConstantFlowAgreement v1", function () {
                         receiver: t.aliases[sender],
                         by: t.aliases[receiver],
                     }),
-                    "CFA: SenderNotCritical()"
+                    "SenderNotCritical()"
                 );
             });
 
@@ -1957,7 +1957,7 @@ describe("Using ConstantFlowAgreement v1", function () {
                         receiver: t.aliases[agent],
                         by: t.aliases[receiver],
                     }),
-                    "CFA: SenderNotCritical()"
+                    "SenderNotCritical()"
                 );
             });
 
@@ -2011,7 +2011,7 @@ describe("Using ConstantFlowAgreement v1", function () {
                         receiver: t.aliases[agent],
                         by: t.aliases[receiver],
                     }),
-                    "CFA: SenderNotCritical()"
+                    "SenderNotCritical()"
                 );
             });
         });
@@ -3020,7 +3020,7 @@ describe("Using ConstantFlowAgreement v1", function () {
                     receiver: app.address,
                     by: dan,
                 }),
-                "CFA: SenderNotCritical()"
+                "SenderNotCritical()"
             );
 
             const accountFlowInfo = await t.sf.cfa.getAccountFlowInfo({
@@ -3105,7 +3105,7 @@ describe("Using ConstantFlowAgreement v1", function () {
                     receiver: t.getAddress(receiver1),
                     by: dan,
                 }),
-                "CFA: SenderNotCritical()"
+                "SenderNotCritical()"
             );
 
             await timeTravelOnceAndVerifyAll({
