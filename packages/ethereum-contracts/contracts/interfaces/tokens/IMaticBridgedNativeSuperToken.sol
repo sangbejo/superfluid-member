@@ -9,6 +9,13 @@ import { ISuperToken } from "../superfluid/ISuperToken.sol";
  * @dev Functionality specific for Matic Bridged Native Super Tokens
  */
 interface IMaticBridgedNativeSuperTokenCustom {
+    
+    /// MBNSuperToken: no permission to deposit
+    error NoDepositPermission();
+
+    /// MBNSuperToken: only governance allowed
+    error OnlyGovernanceAllowed();
+
     /// @dev triggers minting of tokens to the given user, called by the child chain manager
     function deposit(address user, bytes calldata depositData) external;
 

@@ -103,6 +103,26 @@ interface ITOGAv1 {
 }
 
 interface ITOGAv2 is ITOGAv1 {
+
+    /// TOGA: invalid custodian
+    error InvalidCustodian();
+
+    /// TOGA: only PIC allowed
+    error OnlyPICAllowed();
+
+    /// TOGA: negative exitRate not allowed
+    error NegativeExitRateNotAllowed();
+
+    /// TOGA: exitRate too high
+    error ExitRateTooHigh();
+
+    /// TOGA: reentrancy not allowed
+    error ReentrancyNotAllowed();
+
+    /// TOGA: bid too low
+    error BidTooLow();
+
+
     /**
     * @dev allows previous PICs to withdraw bonds which couldn't be sent back to them
     * @param token The token for which to withdraw funds in custody
@@ -145,10 +165,12 @@ contract TOGA is ITOGAv2, IERC777Recipient {
         _ERC1820_REG.setInterfaceImplementer(address(this), keccak256("TOGAv1"), address(this));
         _ERC1820_REG.setInterfaceImplementer(address(this), keccak256("TOGAv2"), address(this));
 
-        require(
-            _ERC1820_REG.getInterfaceImplementer(address(custodian_), erc777TokensRecipientHash) == address(custodian_),
-            "TOGA: invalid custodian"
-        );
+        if (
+            _ERC1820_REG.getInterfaceImplementer(address(custodian_), erc777TokensRecipientHash)
+                != address(custodian_)) {
+                revert InvalidCustodian();
+            }
+            
         custodian = custodian_;
     }
 
@@ -184,9 +206,9 @@ contract TOGA is ITOGAv2, IERC777Recipient {
 
     function changeExitRate(ISuperToken token, int96 newExitRate) external override {
         address currentPICAddr = _currentPICs[token].addr;
-        require(msg.sender == currentPICAddr, "TOGA: only PIC allowed");
-        require(newExitRate >= 0, "TOGA: negative exitRate not allowed");
-        require(uint256(int256(newExitRate)) * minBondDuration <= _getCurrentPICBond(token), "TOGA: exitRate too high");
+        if (msg.sender != currentPICAddr) revert OnlyPICAllowed();
+        if (newExitRate < 0) revert NegativeExitRateNotAllowed();
+        if (uint256(int256(newExitRate)) * minBondDuration > _getCurrentPICBond(token)) revert ExitRateTooHigh();
 
         (, int96 curExitRate,,) = _cfa.getFlow(token, address(this), currentPICAddr);
         if (curExitRate > 0 && newExitRate > 0) {
@@ -248,12 +270,12 @@ contract TOGA is ITOGAv2, IERC777Recipient {
     // This is the logic for designating a PIC via successful bid - invoked only by the ERC777 send() hook
     // Relies on CFA (SuperApp) hooks not being able to block the transaction by reverting.
     function _becomePIC(ISuperToken token, address newPIC, uint256 amount, int96 exitRate) internal {
-        require(!_currentPICs[token].lock, "TOGA: reentrancy not allowed");
-        require(exitRate >= 0, "TOGA: negative exitRate not allowed");
-        require(uint256(int256(exitRate)) * minBondDuration <= amount, "TOGA: exitRate too high");
+        if (_currentPICs[token].lock) revert ReentrancyNotAllowed();
+        if (exitRate < 0) revert NegativeExitRateNotAllowed();
+        if (uint256(int256(exitRate)) * minBondDuration > amount) revert ExitRateTooHigh();
         // cannot underflow because amount was added to the balance before
         uint256 currentPICBond = _getCurrentPICBond(token) - amount;
-        require(amount > currentPICBond, "TOGA: bid too low");
+        if (amount < currentPICBond) revert BidTooLow();
         address currentPICAddr = _currentPICs[token].addr;
 
         _currentPICs[token].lock = true; // set reentrancy guard

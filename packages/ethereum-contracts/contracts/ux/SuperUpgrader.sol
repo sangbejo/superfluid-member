@@ -18,6 +18,15 @@ import {
  */
 contract SuperUpgrader is AccessControlEnumerable {
 
+    /// adminRole is empty
+    error EmptyAdminRole();
+    
+    /// backend can't be zero
+    error EmptyBackend();
+    
+    /// operation not allowed
+    error OperationNotAllowed();
+
     using SafeERC20 for IERC20;
     // Create a new role identifier for the backend role
     bytes32 public constant BACKEND_ROLE = keccak256("BACKEND_ROLE");
@@ -28,10 +37,10 @@ contract SuperUpgrader is AccessControlEnumerable {
     mapping(address => bool) internal _optout;
 
     constructor(address adminRole, address[] memory backendAddr) {
-        require(adminRole != address(0), "adminRole is empty");
+        if (adminRole == address(0)) revert EmptyAdminRole();
         _setupRole(DEFAULT_ADMIN_ROLE, adminRole);
         for (uint256 i = 0; i < backendAddr.length; ++i) {
-            require(backendAddr[i] != address(0), "backend can't be zero");
+            if (backendAddr[i] == address(0)) revert EmptyBackend();
             _setupRole(BACKEND_ROLE, backendAddr[i]);
         }
     }
@@ -50,10 +59,11 @@ contract SuperUpgrader is AccessControlEnumerable {
     )
     external
     {
-        require(msg.sender == account || 
-            (hasRole(BACKEND_ROLE, msg.sender) &&
-            !_optout[account])
-        , "operation not allowed");
+        if (msg.sender != account
+            && (!hasRole(BACKEND_ROLE, msg.sender)
+            || _optout[account])) {
+                revert OperationNotAllowed();
+        }
         // get underlying token
         ISuperToken superToken = ISuperToken(superTokenAddr);
         // get tokens from user
@@ -79,7 +89,7 @@ contract SuperUpgrader is AccessControlEnumerable {
      * @dev Add account to BACKEND_ROLE 
      */
     function grantBackendAgent(address account) external {
-        require(account != address(0), "operation not allowed");
+        if (account == address(0)) revert OperationNotAllowed();
         // grantRole will check if sender is adminRole member
         grantRole(BACKEND_ROLE, account);
     }

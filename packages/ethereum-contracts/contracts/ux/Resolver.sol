@@ -23,7 +23,7 @@ contract Resolver is IResolver, AccessControl {
     }
 
     function set(string calldata name, address target) external override {
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "Caller is not an admin");
+        if (!hasRole(DEFAULT_ADMIN_ROLE, _msgSender())) revert NonAdminCaller();
         _registry[name] = target;
         emit Set(name, target);
     }

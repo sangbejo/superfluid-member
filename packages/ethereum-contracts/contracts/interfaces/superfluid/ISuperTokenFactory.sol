@@ -14,6 +14,12 @@ import {
  */
 interface ISuperTokenFactory {
 
+    /// SuperTokenFactory: only host can update code
+    error OnlyHostCanUpdateCode();
+
+    /// SuperTokenFactory: zero address
+    error NoUnderlyingToken();
+
     /**
      * @dev Get superfluid host contract address
      */

@@ -17,14 +17,20 @@ import { Proxy } from "@openzeppelin/contracts/proxy/Proxy.sol";
  */
 contract UUPSProxy is Proxy {
 
+    /// UUPSProxy: zero address
+    error LogicZeroAddress();
+
+    /// UUPSProxy: already initialized
+    error AlreadyInitialized();
+
     /**
      * @dev Proxy initialization function.
      *      This should only be called once and it is permission-less.
      * @param initialAddress Initial logic contract code address to be used.
      */
     function initializeProxy(address initialAddress) external {
-        require(initialAddress != address(0), "UUPSProxy: zero address");
-        require(UUPSUtils.implementation() == address(0), "UUPSProxy: already initialized");
+        if (initialAddress == address(0)) revert LogicZeroAddress();
+        if (UUPSUtils.implementation() != address(0)) revert AlreadyInitialized();
         UUPSUtils.setImplementation(initialAddress);
     }
 

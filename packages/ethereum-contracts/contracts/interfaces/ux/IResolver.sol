@@ -7,6 +7,9 @@ pragma solidity >= 0.8.0;
  */
 interface IResolver {
 
+    /// Caller is not an admin
+    error NonAdminCaller(); 
+
     event Set(string indexed name, address target);
 
     /**

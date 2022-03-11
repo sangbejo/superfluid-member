@@ -11,6 +11,9 @@ import { Proxy } from "@openzeppelin/contracts/proxy/Proxy.sol";
  */
 contract FullUpgradableSuperTokenProxy is Proxy {
 
+    error AlreadyInitialized();
+    error NotInitialized();
+
     // web3.utils.keccak256("org.superfluid-finance.FullUpgradableSuperTokenWrapper.factory_slot")
     bytes32 internal constant _FACTORY_SLOT = 0xb8fcd5719b3ddf8626f3664705a89b7fc476129a58c1aa5eda57c600cc1821a0;
 
@@ -20,7 +23,7 @@ contract FullUpgradableSuperTokenProxy is Proxy {
         assembly { // solium-disable-line
             factory := sload(_FACTORY_SLOT)
         }
-        require(address(factory) == address(0), "Already initialized");
+        if (address(factory) != address(0)) revert AlreadyInitialized();
         factory = msg.sender;
         assembly { // solium-disable-line
             sstore(_FACTORY_SLOT, factory)
@@ -32,7 +35,7 @@ contract FullUpgradableSuperTokenProxy is Proxy {
         assembly { // solium-disable-line
             factory := sload(_FACTORY_SLOT)
         }
-        require(address(factory) != address(0), "Not initialized");
+        if (address(factory) == address(0)) revert NotInitialized();
         return address(factory.getSuperTokenLogic());
     }
 

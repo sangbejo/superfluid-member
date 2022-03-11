@@ -10,6 +10,9 @@ import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
  */
 contract TestToken is ERC20 {
 
+    /// Don't mint too many
+    error MintLimitReached();
+
     uint256 public constant MINT_LIMIT = 1e12 ether;
     uint8 private _decimals;
 
@@ -23,7 +26,7 @@ contract TestToken is ERC20 {
      * @dev See {ERC20-_mint}.
      */
     function mint(address account, uint256 amount) public returns (bool) {
-        require(amount <= MINT_LIMIT, "Don't mint too many");
+        if (amount > MINT_LIMIT) revert MintLimitReached();
         ERC20._mint(account, amount);
         return true;
     }

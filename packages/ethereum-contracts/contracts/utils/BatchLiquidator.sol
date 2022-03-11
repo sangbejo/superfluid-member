@@ -11,6 +11,9 @@ import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
  */
 contract BatchLiquidator {
 
+    /// arrays different sizes
+    error DifferentArraySizes();
+
     /**
      * @dev Delete flows in batch
      * @param host - The host contract address.
@@ -25,7 +28,7 @@ contract BatchLiquidator {
         address superToken,
         address[] calldata senders, address[] calldata receivers
     ) external {
-        require(senders.length == receivers.length, "arrays different sizes");
+        if (senders.length != receivers.length) revert DifferentArraySizes();
 
         for (uint i = 0; i < senders.length; ++i) {
             bool success;

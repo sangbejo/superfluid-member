@@ -12,6 +12,8 @@ import "../interfaces/ux/IRelayRecipient.sol";
  */
 abstract contract BaseRelayRecipient is IRelayRecipient {
 
+    error NotTrustedForwarder();
+
     /**
      * @dev Check if the forwarder is trusted
      */
@@ -25,7 +27,7 @@ abstract contract BaseRelayRecipient is IRelayRecipient {
      * should be used in the contract anywhere instead of msg.sender
      */
     function _getTransactionSigner() internal virtual view returns (address payable ret) {
-        require(msg.data.length >= 24 && isTrustedForwarder(msg.sender), "Not trusted forwarder");
+        if(msg.data.length < 24 || !isTrustedForwarder(msg.sender)) revert NotTrustedForwarder();
         // At this point we know that the sender is a trusted forwarder,
         // so we trust that the last bytes of msg.data are the verified sender address.
         // extract sender address from the end of msg.data

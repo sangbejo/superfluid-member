@@ -81,12 +81,12 @@ describe("MaticBridgedNativeSuperTokenProxy Contract", function () {
             "MBT"
         );
 
-        await expectRevert(
+        await expectCustomErrorRevert(
             token.deposit(
                 bob,
                 web3.eth.abi.encodeParameter("uint256", AMOUNT_1)
             ),
-            "MBNSuperToken: no permission to deposit"
+            "NoDepositPermission()"
         );
 
         await token.deposit(
@@ -102,9 +102,9 @@ describe("MaticBridgedNativeSuperTokenProxy Contract", function () {
 
         await token.withdraw(AMOUNT_1, {from: bob});
 
-        await expectRevert(
+        await expectCustomErrorRevert(
             token.updateChildChainManager(bob, {from: eve}),
-            "MBNSuperToken: only governance allowed"
+            "OnlyGovernanceAllowed()"
         );
     });
 

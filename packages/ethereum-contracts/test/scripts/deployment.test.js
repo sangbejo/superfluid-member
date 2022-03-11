@@ -1,6 +1,5 @@
 const Web3 = require("web3");
 const {web3tx} = require("@decentral.ee/web3-helpers");
-const {expectRevert} = require("@openzeppelin/test-helpers");
 const {codeChanged} = require("../../scripts/libs/common");
 const deployFramework = require("../../scripts/deploy-framework");
 const deployTestToken = require("../../scripts/deploy-test-token");
@@ -482,9 +481,9 @@ contract("Embeded deployment scripts", (accounts) => {
         console.log("superfluid(proxy)", s.superfluid.address);
         console.log("*superfluid(logic)", superfluidLogic.address);
         console.log("**superfluid", await superfluidLogic.getCodeAddress());
-        await expectRevert(
+        await expectCustomErrorRevert(
             superfluidLogic.updateCode(destructor.address, {from: attacker}),
-            "UUPSProxiable: not upgradable"
+            "NotUpgradeable()"
         );
     });
 
@@ -494,14 +493,14 @@ contract("Embeded deployment scripts", (accounts) => {
         const s = await getSuperfluidAddresses();
         const gov = await TestGovernance.at(s.gov);
         assert.equal(gov.address, await s.superfluid.getGovernance());
-        await expectRevert(
+        await expectCustomErrorRevert(
             gov.updateContracts(
                 s.superfluid.address,
                 s.superfluid.address, // a dead loop proxy
                 [],
                 ZERO_ADDRESS
             ),
-            "UUPSProxiable: proxy loop"
+            "ProxyLoop()"
         );
     });
 });

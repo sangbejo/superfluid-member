@@ -2107,7 +2107,7 @@ describe("Superfluid Host Contract", function () {
                         from: admin,
                     }
                 );
-                await expectRevert(
+                await expectCustomErrorRevert(
                     web3tx(forwarder.execute, "forwarder.execute")(
                         {
                             from: alice,
@@ -2120,17 +2120,17 @@ describe("Superfluid Host Contract", function () {
                         },
                         {from: admin}
                     ),
-                    "Not trusted forwarder"
+                    "NotTrustedForwarder()"
                 );
             });
 
             it("#11.3 forwarder with malformatted message", async () => {
-                await expectRevert(
+                await expectCustomErrorRevert(
                     web3tx(superfluid.forwardBatchCall, "forwarder.execute")(
                         [],
                         {from: admin}
                     ),
-                    "Not trusted forwarder"
+                    "NotTrustedForwarder()"
                 );
             });
         });

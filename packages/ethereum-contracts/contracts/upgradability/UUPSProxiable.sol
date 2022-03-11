@@ -8,6 +8,15 @@ import { Initializable } from "@openzeppelin/contracts/proxy/utils/Initializable
  * @title UUPS (Universal Upgradeable Proxy Standard) Proxiable contract.
  */
 abstract contract UUPSProxiable is Initializable {
+    
+    /// UUPSProxiable: not upgradable
+    error NotUpgradeable();
+
+    /// UUPSProxiable: not compatible logic
+    error NonCompatibleLogic();
+
+    /// UUPSProxiable: proxy loop
+    error ProxyLoop();
 
     /**
      * @dev Get current implementation code address.
@@ -35,15 +44,9 @@ abstract contract UUPSProxiable is Initializable {
     function _updateCodeAddress(address newAddress) internal
     {
         // require UUPSProxy.initializeProxy first
-        require(UUPSUtils.implementation() != address(0), "UUPSProxiable: not upgradable");
-        require(
-            proxiableUUID() == UUPSProxiable(newAddress).proxiableUUID(),
-            "UUPSProxiable: not compatible logic"
-        );
-        require(
-            address(this) != newAddress,
-            "UUPSProxiable: proxy loop"
-        );
+        if (UUPSUtils.implementation() == address(0)) revert NotUpgradeable();
+        if (proxiableUUID() != UUPSProxiable(newAddress).proxiableUUID()) revert NonCompatibleLogic();
+        if (address(this) == newAddress) revert ProxyLoop();
         UUPSUtils.setImplementation(newAddress);
         emit CodeUpdated(proxiableUUID(), newAddress);
     }
