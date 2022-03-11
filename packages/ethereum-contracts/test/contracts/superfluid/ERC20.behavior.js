@@ -6,6 +6,7 @@ const {
     expectRevert,
 } = require("@openzeppelin/test-helpers");
 const {expect} = require("chai");
+const expectCustomErrorRevert = require("../utils/expectCustomRevert");
 const {ZERO_ADDRESS} = constants;
 
 function shouldBehaveLikeERC20(errorPrefix, initialSupply, setupAccounts) {
@@ -144,14 +145,14 @@ function shouldBehaveLikeERC20(errorPrefix, initialSupply, setupAccounts) {
                         const amount = initialSupply.addn(1);
 
                         it("reverts", async function () {
-                            await expectRevert(
+                            await expectCustomErrorRevert(
                                 this.token.transferFrom(
                                     tokenOwner,
                                     to,
                                     amount,
                                     {from: spender}
                                 ),
-                                "SuperfluidToken: move amount exceeds balance"
+                                "MoveAmountExceedsBalance()"
                             );
                         });
                     });
@@ -186,14 +187,14 @@ function shouldBehaveLikeERC20(errorPrefix, initialSupply, setupAccounts) {
                         const amount = initialSupply.addn(1);
 
                         it("reverts", async function () {
-                            await expectRevert(
+                            await expectCustomErrorRevert(
                                 this.token.transferFrom(
                                     tokenOwner,
                                     to,
                                     amount,
                                     {from: spender}
                                 ),
-                                "SuperfluidToken: move amount exceeds balance"
+                                "MoveAmountExceedsBalance()"
                             );
                         });
                     });
@@ -211,11 +212,11 @@ function shouldBehaveLikeERC20(errorPrefix, initialSupply, setupAccounts) {
                 });
 
                 it("reverts", async function () {
-                    await expectRevert(
+                    await expectCustomErrorRevert(
                         this.token.transferFrom(tokenOwner, to, amount, {
                             from: spender,
                         }),
-                        "SuperToken: transfer to zero address"
+                        "TransferToZeroAddress()"
                     );
                 });
             });
@@ -231,11 +232,11 @@ function shouldBehaveLikeERC20(errorPrefix, initialSupply, setupAccounts) {
             });
 
             it("reverts", async function () {
-                await expectRevert(
+                await expectCustomErrorRevert(
                     this.token.transferFrom(tokenOwner, to, amount, {
                         from: spender,
                     }),
-                    "SuperToken: transfer from zero address"
+                    "TransferFromZeroAddress()"
                 );
             });
         });
@@ -272,9 +273,9 @@ function shouldBehaveLikeERC20Transfer(
             const amount = balance.addn(1);
 
             it("reverts", async function () {
-                await expectRevert(
+                await expectCustomErrorRevert(
                     transfer.call(this, from, to, amount),
-                    "SuperfluidToken: move amount exceeds balance"
+                    "MoveAmountExceedsBalance()"
                 );
             });
         });
@@ -334,9 +335,9 @@ function shouldBehaveLikeERC20Transfer(
 
     describe("when the recipient is the zero address", function () {
         it("reverts", async function () {
-            await expectRevert(
+            await expectCustomErrorRevert(
                 transfer.call(this, from, ZERO_ADDRESS, balance),
-                "SuperToken: transfer to zero address"
+                "TransferToZeroAddress()"
             );
         });
     });
@@ -434,9 +435,9 @@ function shouldBehaveLikeERC20Approve(
 
     describe("when the spender is the zero address", function () {
         it("reverts", async function () {
-            await expectRevert(
+            await expectCustomErrorRevert(
                 approve.call(this, owner, ZERO_ADDRESS, supply),
-                "SuperToken: approve to zero address"
+                "ApproveToZeroAddress()"
             );
         });
     });

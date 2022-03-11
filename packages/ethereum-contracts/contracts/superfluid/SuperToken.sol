@@ -111,7 +111,7 @@ contract SuperToken is
     }
 
     function updateCode(address newAddress) external override {
-        require(msg.sender == address(_host), "SuperToken: only host can update code");
+        if (msg.sender != address(_host)) revert OnlyHostCanUpdateCode();
         UUPSProxiable._updateCodeAddress(newAddress);
     }
 
@@ -138,8 +138,8 @@ contract SuperToken is
     function _transferFrom(address spender, address holder, address recipient, uint amount)
         internal returns (bool)
     {
-        require(holder != address(0), "SuperToken: transfer from zero address");
-        require(recipient != address(0), "SuperToken: transfer to zero address");
+        if (holder == address(0)) revert TransferFromZeroAddress();
+        if (recipient == address(0)) revert TransferToZeroAddress();
 
         address operator = msg.sender;
 
@@ -180,8 +180,8 @@ contract SuperToken is
     )
         private
     {
-        require(from != address(0), "SuperToken: transfer from zero address");
-        require(to != address(0), "SuperToken: transfer to zero address");
+        if (from == address(0)) revert TransferFromZeroAddress();
+        if (to == address(0)) revert TransferToZeroAddress();
 
         _callTokensToSend(operator, from, to, amount, userData, operatorData);
 
@@ -233,7 +233,7 @@ contract SuperToken is
     )
         internal
     {
-        require(account != address(0), "SuperToken: mint to zero address");
+        if (account == address(0)) revert MintToZeroAddress();
 
         SuperfluidToken._mint(account, amount);
 
@@ -259,7 +259,7 @@ contract SuperToken is
     )
         internal
     {
-        require(from != address(0), "SuperToken: burn from zero address");
+        if (from == address(0)) revert BurnFromZeroAddress();
 
         _callTokensToSend(operator, from, address(0), amount, userData, operatorData);
 
@@ -285,8 +285,8 @@ contract SuperToken is
     function _approve(address account, address spender, uint256 amount)
         internal
     {
-        require(account != address(0), "SuperToken: approve from zero address");
-        require(spender != address(0), "SuperToken: approve to zero address");
+        if (account == address(0)) revert ApproveFromZeroAddress();
+        if (spender == address(0)) revert ApproveToZeroAddress();
 
         _allowances[account][spender] = amount;
         emit Approval(account, spender, amount);
@@ -345,9 +345,7 @@ contract SuperToken is
         if (implementer != address(0)) {
             IERC777Recipient(implementer).tokensReceived(operator, from, to, amount, userData, operatorData);
         } else if (requireReceptionAck) {
-            require(
-                !to.isContract(),
-                "SuperToken: not an ERC777TokensRecipient");
+            if (to.isContract()) revert NotERC777TokensRecipient();
         }
     }
 
@@ -455,7 +453,7 @@ contract SuperToken is
         bytes calldata operatorData
     ) external override {
         address operator = msg.sender;
-        require(_operators.isOperatorFor(operator, sender), "SuperToken: caller is not an operator for holder");
+        if (!_operators.isOperatorFor(operator, sender)) revert CallerIsNotOperatorForHolder();
         _send(operator, sender, recipient, amount, data, operatorData, true);
     }
 
@@ -466,7 +464,7 @@ contract SuperToken is
         bytes calldata operatorData
     ) external override {
         address operator = msg.sender;
-        require(_operators.isOperatorFor(operator, account), "SuperToken: caller is not an operator for holder");
+        if (!_operators.isOperatorFor(operator, account)) revert CallerIsNotOperatorForHolder();
         _downgrade(operator, account, amount, data, operatorData);
     }
 
@@ -566,7 +564,7 @@ contract SuperToken is
         bytes memory userData,
         bytes memory operatorData
     ) private {
-        require(address(_underlyingToken) != address(0), "SuperToken: no underlying token");
+        if (address(_underlyingToken) == address(0)) revert NoUnderlyingToken();
 
         (uint256 underlyingAmount, uint256 adjustedAmount) = _toUnderlyingAmount(amount);
 
@@ -574,9 +572,7 @@ contract SuperToken is
         _underlyingToken.safeTransferFrom(account, address(this), underlyingAmount);
         uint256 amountAfter = _underlyingToken.balanceOf(address(this));
         uint256 actualUpgradedAmount = amountAfter - amountBefore;
-        require(
-            underlyingAmount == actualUpgradedAmount,
-            "SuperToken: inflationary/deflationary tokens not supported");
+        if (underlyingAmount != actualUpgradedAmount) revert InflationaryDeflationaryNotSupported();
 
         _mint(operator, to, adjustedAmount,
             // if `to` is diffferent from `account`, we requireReceptionAck
@@ -591,7 +587,7 @@ contract SuperToken is
         uint256 amount,
         bytes memory data,
         bytes memory operatorData) private {
-        require(address(_underlyingToken) != address(0), "SuperToken: no underlying token");
+        if (address(_underlyingToken) == address(0)) revert NoUnderlyingToken();
 
         (uint256 underlyingAmount, uint256 adjustedAmount) = _toUnderlyingAmount(amount);
 
@@ -602,9 +598,7 @@ contract SuperToken is
         _underlyingToken.safeTransfer(account, underlyingAmount);
         uint256 amountAfter = _underlyingToken.balanceOf(address(this));
         uint256 actualDowngradedAmount = amountBefore - amountAfter;
-        require(
-            underlyingAmount == actualDowngradedAmount,
-            "SuperToken: inflationary/deflationary tokens not supported");
+        if (underlyingAmount != actualDowngradedAmount) revert InflationaryDeflationaryNotSupported();
 
         emit TokenDowngraded(account, adjustedAmount);
     }
@@ -681,7 +675,7 @@ contract SuperToken is
     *************************************************************************/
 
     modifier onlySelf() {
-        require(msg.sender == address(this), "SuperToken: only self allowed");
+        if (msg.sender != address(this)) revert OnlySelfAllowed();
         _;
     }
 

@@ -1,9 +1,4 @@
 const {
-    expectRevert,
-    // expectEvent
-} = require("@openzeppelin/test-helpers");
-
-const {
     web3tx,
     //toBN
     // toDecimals,
@@ -11,6 +6,7 @@ const {
 } = require("@decentral.ee/web3-helpers");
 
 const TestEnvironment = require("../../TestEnvironment");
+const expectCustomErrorRevert = require("../utils/expectCustomRevert");
 const AgreementMock = artifacts.require("AgreementMock");
 
 describe("SuperfluidToken implementation", function () {
@@ -256,27 +252,27 @@ describe("SuperfluidToken implementation", function () {
                     "0x42",
                     testData
                 );
-                await expectRevert(
+                await expectCustomErrorRevert(
                     acA.createAgreementFor(
                         superToken.address,
                         "0x42",
                         testData
                     ),
-                    "SuperfluidToken: agreement already created"
+                    "AgreementAlreadyExists()"
                 );
                 // try overlapping data
-                await expectRevert(
+                await expectCustomErrorRevert(
                     acA.createAgreementFor(superToken.address, "0x42", [
                         testData[0],
                     ]),
-                    "SuperfluidToken: agreement already created"
+                    "AgreementAlreadyExists()"
                 );
-                await expectRevert(
+                await expectCustomErrorRevert(
                     acA.createAgreementFor(superToken.address, "0x42", [
                         ...testData,
                         ...testData,
                     ]),
-                    "SuperfluidToken: agreement already created"
+                    "AgreementAlreadyExists()"
                 );
             });
 
@@ -334,9 +330,9 @@ describe("SuperfluidToken implementation", function () {
                     acA.terminateAgreementFor,
                     "terminateAgreementFor"
                 )(superToken.address, "0x42", 2);
-                await expectRevert(
+                await expectCustomErrorRevert(
                     acA.terminateAgreementFor(superToken.address, "0x42", 2),
-                    "SuperfluidToken: agreement does not exist"
+                    "AgreementDoesNotExists()"
                 );
             });
         });
@@ -433,9 +429,9 @@ describe("SuperfluidToken implementation", function () {
                     web3.utils.sha3("typeBad"),
                     1
                 );
-                await expectRevert(
+                await expectCustomErrorRevert(
                     acBad.settleBalanceFor(superToken.address, bob, "1"),
-                    "SuperfluidToken: only listed agreeement"
+                    "OnlyListedAgreement()"
                 );
             });
 
@@ -472,7 +468,7 @@ describe("SuperfluidToken implementation", function () {
                 web3.utils.sha3("typeBad"),
                 1
             );
-            await expectRevert(
+            await expectCustomErrorRevert(
                 acBad.makeLiquidationPayoutsFor(
                     superToken.address,
                     "0x42",
@@ -482,7 +478,7 @@ describe("SuperfluidToken implementation", function () {
                     0,
                     0
                 ),
-                "SuperfluidToken: only listed agreeement"
+                "OnlyListedAgreement()"
             );
         });
 

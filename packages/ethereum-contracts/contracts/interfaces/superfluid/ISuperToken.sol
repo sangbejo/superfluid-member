@@ -24,6 +24,46 @@ interface ISuperToken is ISuperfluidToken, TokenInfo, IERC20, IERC777 {
     ) external;
 
     /**************************************************************************
+    * Custom Errors
+    *************************************************************************/
+
+    /// SuperToken: only host can update code
+    error OnlyHostCanUpdateCode();
+    
+    /// SuperToken: transfer from zero address
+    error TransferFromZeroAddress();
+    
+    /// SuperToken: transfer to zero address
+    error TransferToZeroAddress();
+    
+    /// SuperToken: mint to zero address
+    error MintToZeroAddress();
+    
+    /// SuperToken: burn from zero address
+    error BurnFromZeroAddress();
+    
+    /// SuperToken: approve from zero address
+    error ApproveFromZeroAddress();
+    
+    /// SuperToken: approve to zero address
+    error ApproveToZeroAddress();
+    
+    /// SuperToken: not an ERC777TokensRecipient
+    error NotERC777TokensRecipient();
+    
+    /// SuperToken: caller is not an operator for holder
+    error CallerIsNotOperatorForHolder();
+    
+    /// SuperToken: no underlying token
+    error NoUnderlyingToken();
+    
+    /// SuperToken: inflationary/deflationary tokens not supported
+    error InflationaryDeflationaryNotSupported();
+    
+    /// SuperToken: only self allowed
+    error OnlySelfAllowed();
+
+    /**************************************************************************
     * TokenInfo & ERC777
     *************************************************************************/
 

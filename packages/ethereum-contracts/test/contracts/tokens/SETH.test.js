@@ -1,4 +1,4 @@
-const {expectRevert, expectEvent} = require("@openzeppelin/test-helpers");
+const {expectEvent} = require("@openzeppelin/test-helpers");
 
 const ISuperTokenFactory = artifacts.require("ISuperTokenFactory");
 const TestEnvironment = require("../../TestEnvironment");
@@ -7,6 +7,7 @@ const ISETH = artifacts.require("ISETH");
 const SETHProxy = artifacts.require("SETHProxy");
 
 const {web3tx, toBN, toWad} = require("@decentral.ee/web3-helpers");
+const expectCustomErrorRevert = require("../utils/expectCustomRevert");
 
 describe("Super ETH (SETH) Contract", function () {
     this.timeout(300e3);
@@ -115,9 +116,9 @@ describe("Super ETH (SETH) Contract", function () {
             from: alice,
         });
 
-        await expectRevert(
+        await expectCustomErrorRevert(
             seth.downgradeToETH(toWad(1).addn(1), {from: alice}),
-            "SuperfluidToken: burn amount exceeds balance"
+            "BurnAmountExceedsBalance()"
         );
 
         const aliceBalance1 = await web3.eth.getBalance(alice);
@@ -280,11 +281,11 @@ describe("Super ETH (SETH) Contract", function () {
             from: alice,
         });
 
-        await expectRevert(
+        await expectCustomErrorRevert(
             seth.downgrade(toWad(1).addn(1), {
                 from: alice,
             }),
-            "SuperfluidToken: burn amount exceeds balance"
+            "BurnAmountExceedsBalance()"
         );
 
         const tx = await web3tx(seth.downgrade, "seth.downgrade by alice")(

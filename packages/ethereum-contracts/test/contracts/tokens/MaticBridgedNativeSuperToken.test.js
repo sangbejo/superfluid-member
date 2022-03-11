@@ -10,6 +10,7 @@ const IMaticBridgedNativeSuperToken = artifacts.require(
 );
 
 const {web3tx, toWad} = require("@decentral.ee/web3-helpers");
+const expectCustomErrorRevert = require("../utils/expectCustomRevert");
 
 describe("MaticBridgedNativeSuperTokenProxy Contract", function () {
     this.timeout(300e3);
@@ -94,9 +95,9 @@ describe("MaticBridgedNativeSuperTokenProxy Contract", function () {
             {from: chainMgr}
         );
 
-        await expectRevert(
+        await expectCustomErrorRevert(
             token.withdraw(AMOUNT_1, {from: eve}),
-            "SuperfluidToken: burn amount exceeds balance"
+            "BurnAmountExceedsBalance()"
         );
 
         await token.withdraw(AMOUNT_1, {from: bob});

@@ -11,6 +11,28 @@ import { ISuperAgreement } from "./ISuperAgreement.sol";
 interface ISuperfluidToken {
 
     /**************************************************************************
+     * Custom Errors
+     *************************************************************************/
+    
+    /// SuperfluidToken: burn amount exceeds balance
+    error BurnAmountExceedsBalance();
+    
+    /// SuperfluidToken: move amount exceeds balance
+    error MoveAmountExceedsBalance();
+    
+    /// SuperfluidToken: agreement already created
+    error AgreementAlreadyExists();
+    
+    /// SuperfluidToken: agreement does not exist
+    error AgreementDoesNotExists();
+    
+    /// SuperfluidToken: only listed agreeement
+    error OnlyListedAgreement();
+    
+    /// SuperfluidToken: Only host contract allowed
+    error OnlyHostContract();
+
+    /**************************************************************************
      * Basic information
      *************************************************************************/
 

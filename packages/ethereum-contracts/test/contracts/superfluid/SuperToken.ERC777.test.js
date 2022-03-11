@@ -463,16 +463,16 @@ describe("SuperToken's ERC777 implementation", function () {
                         });
 
                         it("send reverts", async function () {
-                            await expectRevert(
+                            await expectCustomErrorRevert(
                                 this.token.send(recipient, amount, testData, {
                                     from: holder,
                                 }),
-                                "SuperToken: not an ERC777TokensRecipient"
+                                "NotERC777TokensRecipient()"
                             );
                         });
 
                         it("operatorSend reverts", async function () {
-                            await expectRevert(
+                            await expectCustomErrorRevert(
                                 this.token.operatorSend(
                                     sender,
                                     recipient,
@@ -481,12 +481,12 @@ describe("SuperToken's ERC777 implementation", function () {
                                     operatorData,
                                     {from: operator}
                                 ),
-                                "SuperToken: not an ERC777TokensRecipient"
+                                "NotERC777TokensRecipient()"
                             );
                         });
 
                         it("mint (internal) reverts", async function () {
-                            await expectRevert(
+                            await expectCustomErrorRevert(
                                 this.token.mintInternal(
                                     recipient,
                                     amount,
@@ -494,12 +494,12 @@ describe("SuperToken's ERC777 implementation", function () {
                                     operatorData,
                                     {from: operator}
                                 ),
-                                "SuperToken: not an ERC777TokensRecipient"
+                                "NotERC777TokensRecipient()"
                             );
                         });
 
                         it("mint (internal) to zero address reverts", async function () {
-                            await expectRevert(
+                            await expectCustomErrorRevert(
                                 this.token.mintInternal(
                                     ZERO_ADDRESS,
                                     amount,
@@ -507,7 +507,7 @@ describe("SuperToken's ERC777 implementation", function () {
                                     operatorData,
                                     {from: operator}
                                 ),
-                                "SuperToken: mint to zero address"
+                                "MintToZeroAddress()"
                             );
                         });
 

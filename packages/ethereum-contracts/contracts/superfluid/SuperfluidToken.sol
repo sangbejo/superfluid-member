@@ -196,7 +196,7 @@ abstract contract SuperfluidToken is ISuperfluidToken
         internal
     {
         (int256 availableBalance,,) = realtimeBalanceOf(account, block.timestamp);
-        require(availableBalance >= amount.toInt256(), "SuperfluidToken: burn amount exceeds balance");
+        if (availableBalance < amount.toInt256()) revert BurnAmountExceedsBalance();
         _balances[account] = _balances[account] - amount.toInt256();
         _totalSupply = _totalSupply - amount;
     }
@@ -209,7 +209,7 @@ abstract contract SuperfluidToken is ISuperfluidToken
         internal
     {
         (int256 availableBalance,,) = realtimeBalanceOf(from, block.timestamp);
-        require(availableBalance >= amount, "SuperfluidToken: move amount exceeds balance");
+        if (availableBalance < amount) revert MoveAmountExceedsBalance();
         _balances[from] = _balances[from] - amount;
         _balances[to] = _balances[to] + amount;
     }
@@ -227,7 +227,7 @@ abstract contract SuperfluidToken is ISuperfluidToken
     {
         address agreementClass = msg.sender;
         bytes32 slot = keccak256(abi.encode("AgreementData", agreementClass, id));
-        require(!FixedSizeData.hasData(slot, data.length), "SuperfluidToken: agreement already created");
+        if (FixedSizeData.hasData(slot, data.length)) revert AgreementAlreadyExists();
         FixedSizeData.storeData(slot, data);
         emit AgreementCreated(agreementClass, id, data);
     }
@@ -267,7 +267,7 @@ abstract contract SuperfluidToken is ISuperfluidToken
     {
         address agreementClass = msg.sender;
         bytes32 slot = keccak256(abi.encode("AgreementData", agreementClass, id));
-        require(FixedSizeData.hasData(slot,dataLength), "SuperfluidToken: agreement does not exist");
+        if (!FixedSizeData.hasData(slot,dataLength)) revert AgreementDoesNotExists();
         FixedSizeData.eraseData(slot, dataLength);
         emit AgreementTerminated(msg.sender, id);
     }
@@ -369,14 +369,12 @@ abstract contract SuperfluidToken is ISuperfluidToken
     *************************************************************************/
 
     modifier onlyAgreement() {
-        require(
-            _host.isAgreementClassListed(ISuperAgreement(msg.sender)),
-            "SuperfluidToken: only listed agreeement");
+        if (!_host.isAgreementClassListed(ISuperAgreement(msg.sender))) revert OnlyListedAgreement();
         _;
     }
 
     modifier onlyHost() {
-        require(address(_host) == msg.sender, "SuperfluidToken: Only host contract allowed");
+        if (address(_host) != msg.sender) revert OnlyHostContract();
         _;
     }
 

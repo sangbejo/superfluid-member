@@ -4,6 +4,8 @@ const {expectEvent, expectRevert} = require("@openzeppelin/test-helpers");
 
 const {web3tx, toWad, toDecimals, toBN} = require("@decentral.ee/web3-helpers");
 
+const expectCustomErrorRevert = require("../utils/expectCustomRevert");
+
 const TestToken = artifacts.require("TestToken");
 const ERC777SenderRecipientMock = artifacts.require(
     "ERC777SenderRecipientMock"
@@ -59,9 +61,9 @@ describe("SuperToken's Non Standard Functions", function () {
         });
 
         it("#1.3 only host can update the code", async () => {
-            await expectRevert(
+            await expectCustomErrorRevert(
                 superToken.updateCode(ZERO_ADDRESS),
-                "SuperToken: only host can update code"
+                "OnlyHostCanUpdateCode()"
             );
         });
 
@@ -213,14 +215,14 @@ describe("SuperToken's Non Standard Functions", function () {
         });
 
         it("#2.5 - should not downgrade if there is no balance", async () => {
-            await expectRevert(
+            await expectCustomErrorRevert(
                 web3tx(
                     superToken.downgrade,
                     "SuperToken.downgrade - bad balance"
                 )(toBN(1), {
                     from: alice,
                 }),
-                "SuperfluidToken: burn amount exceeds balance"
+                "BurnAmountExceedsBalance()"
             );
         });
 
@@ -464,11 +466,11 @@ describe("SuperToken's Non Standard Functions", function () {
 
         it("#2.9 - upgradeTo should trigger tokensReceived", async () => {
             const mock = await ERC777SenderRecipientMock.new();
-            await expectRevert(
+            await expectCustomErrorRevert(
                 superToken.upgradeTo(mock.address, toWad(2), "0x", {
                     from: alice,
                 }),
-                "SuperToken: not an ERC777TokensRecipient"
+                "NotERC777TokensRecipient()"
             );
             await web3tx(
                 mock.registerRecipient,
@@ -546,7 +548,6 @@ describe("SuperToken's Non Standard Functions", function () {
         });
 
         it("#2.12 Revert upgrade and self-upgradeTo if trigger tokenReceived", async () => {
-            const reason = "SuperToken: not an ERC777TokensRecipient";
             await web3tx(
                 testToken.approve,
                 "TestToken.approve - from alice to SuperToken"
@@ -554,11 +555,11 @@ describe("SuperToken's Non Standard Functions", function () {
                 from: alice,
             });
 
-            await expectRevert(
+            await expectCustomErrorRevert(
                 superToken.upgradeTo(mockWallet.address, toWad(2), "0x", {
                     from: alice,
                 }),
-                reason
+                "NotERC777TokensRecipient()"
             );
         });
     });
@@ -601,19 +602,25 @@ describe("SuperToken's Non Standard Functions", function () {
         });
 
         it("#3.2 Custom token functions can only be called by self", async () => {
-            const reason = "SuperToken: only self allowed";
-            await expectRevert(superToken.selfMint(alice, 100, "0x"), reason);
-            await expectRevert(superToken.selfBurn(alice, 100, "0x"), reason);
+            const reason = "OnlySelfAllowed()";
+            await expectCustomErrorRevert(
+                superToken.selfMint(alice, 100, "0x"),
+                reason
+            );
+            await expectCustomErrorRevert(
+                superToken.selfBurn(alice, 100, "0x"),
+                reason
+            );
         });
 
         it("#3.3 Custom token that mints/burn and disabling upgrade/downgrade", async () => {
-            await expectRevert(
+            await expectCustomErrorRevert(
                 customToken.upgrade(100),
-                "SuperToken: no underlying token"
+                "NoUnderlyingToken()"
             );
-            await expectRevert(
+            await expectCustomErrorRevert(
                 customToken.downgrade(100),
-                "SuperToken: no underlying token"
+                "NoUnderlyingToken()"
             );
             await web3tx(customToken.initialize, "customToken.initialize")(
                 ZERO_ADDRESS,
@@ -633,9 +640,9 @@ describe("SuperToken's Non Standard Functions", function () {
             );
             assert.equal((await customToken.totalSupply()).toString(), "100");
 
-            await expectRevert(
+            await expectCustomErrorRevert(
                 customToken.callSelfBurn(alice, 101, "0x"),
-                "SuperfluidToken: burn amount exceeds balance"
+                "BurnAmountExceedsBalance()"
             );
 
             await web3tx(customToken.callSelfBurn, "customToken.callSelfBurn")(
@@ -672,26 +679,26 @@ describe("SuperToken's Non Standard Functions", function () {
             );
 
             // holder must have enough balance
-            await expectRevert(
+            await expectCustomErrorRevert(
                 customToken.callSelfTransferFrom(bob, alice, alice, 100),
-                "SuperfluidToken: move amount exceeds balance."
+                "MoveAmountExceedsBalance()"
             );
 
             // holder cannot be zero address
-            await expectRevert(
+            await expectCustomErrorRevert(
                 customToken.callSelfTransferFrom(
                     ZERO_ADDRESS,
                     ZERO_ADDRESS,
                     bob,
                     100
                 ),
-                "SuperToken: transfer from zero address"
+                "TransferFromZeroAddress()"
             );
 
             // recipient cannot be zero address
-            await expectRevert(
+            await expectCustomErrorRevert(
                 customToken.callSelfTransferFrom(alice, bob, ZERO_ADDRESS, 100),
-                "SuperToken: transfer to zero address"
+                "TransferToZeroAddress()"
             );
 
             // alice approves bob to spend her tokens
@@ -746,15 +753,15 @@ describe("SuperToken's Non Standard Functions", function () {
             );
 
             // account cannot be zero address
-            await expectRevert(
+            await expectCustomErrorRevert(
                 customToken.callSelfApproveFor(ZERO_ADDRESS, bob, 100),
-                "SuperToken: approve from zero address"
+                "ApproveFromZeroAddress()"
             );
 
             // spender cannot be zero address
-            await expectRevert(
+            await expectCustomErrorRevert(
                 customToken.callSelfApproveFor(alice, ZERO_ADDRESS, 100),
-                "SuperToken: approve to zero address"
+                "ApproveToZeroAddress()"
             );
 
             // should be able to call selfApprove at will + make a selfTransferFrom
@@ -805,21 +812,21 @@ describe("SuperToken's Non Standard Functions", function () {
         });
 
         it("#10.3 batchCall should only be called by host", async function () {
-            await expectRevert(
+            await expectCustomErrorRevert(
                 superToken.operationApprove(alice, bob, "0"),
-                "SuperfluidToken: Only host contract allowed"
+                "OnlyHostContract()"
             );
-            await expectRevert(
+            await expectCustomErrorRevert(
                 superToken.operationTransferFrom(alice, bob, admin, "0"),
-                "SuperfluidToken: Only host contract allowed"
+                "OnlyHostContract()"
             );
-            await expectRevert(
+            await expectCustomErrorRevert(
                 superToken.operationUpgrade(alice, "0"),
-                "SuperfluidToken: Only host contract allowed"
+                "OnlyHostContract()"
             );
-            await expectRevert(
+            await expectCustomErrorRevert(
                 superToken.operationDowngrade(alice, "0"),
-                "SuperfluidToken: Only host contract allowed"
+                "OnlyHostContract()"
             );
         });
     });

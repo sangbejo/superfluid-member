@@ -9,6 +9,7 @@ const {
     shouldBehaveLikeERC20Transfer,
     shouldBehaveLikeERC20Approve,
 } = require("./ERC20.behavior");
+const expectCustomErrorRevert = require("../utils/expectCustomRevert");
 
 const SuperTokenMock = artifacts.require("SuperTokenMock");
 
@@ -279,11 +280,11 @@ describe("SuperToken's ERC20 compliance", function () {
             const spender = ZERO_ADDRESS;
 
             it("reverts", async function () {
-                await expectRevert(
+                await expectCustomErrorRevert(
                     this.token.increaseAllowance(spender, amount, {
                         from: alice,
                     }),
-                    "SuperToken: approve to zero address"
+                    "ApproveToZeroAddress()"
                 );
             });
         });
@@ -304,13 +305,13 @@ describe("SuperToken's ERC20 compliance", function () {
 
         describe("when the sender is the zero address", function () {
             it("reverts", async function () {
-                await expectRevert(
+                await expectCustomErrorRevert(
                     this.token.transferInternal(
                         ZERO_ADDRESS,
                         bob,
                         initialSupply
                     ),
-                    "SuperToken: transfer from zero address"
+                    "TransferFromZeroAddress()"
                 );
             });
         });
@@ -331,13 +332,13 @@ describe("SuperToken's ERC20 compliance", function () {
 
         describe("when the owner is the zero address", function () {
             it("reverts", async function () {
-                await expectRevert(
+                await expectCustomErrorRevert(
                     this.token.approveInternal(
                         ZERO_ADDRESS,
                         bob,
                         initialSupply
                     ),
-                    "SuperToken: approve from zero address"
+                    "ApproveFromZeroAddress()"
                 );
             });
         });
