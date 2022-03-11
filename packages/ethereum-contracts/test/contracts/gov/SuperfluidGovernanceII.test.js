@@ -4,6 +4,7 @@ const SuperfluidGovernanceIIProxy = artifacts.require(
     "SuperfluidGovernanceIIProxy"
 );
 const SuperfluidGovernanceII = artifacts.require("SuperfluidGovernanceII");
+const expectCustomErrorRevert = require("../utils/expectCustomRevert");
 
 const TestEnvironment = require("../../TestEnvironment");
 
@@ -16,7 +17,6 @@ describe("Superfluid Ownable Governance Contract", function () {
     const FAKE_TOKEN_ADDRESS2 = "0x" + "f".repeat(40);
     const FAKE_ADDRESS1 = "0x" + "1".repeat(40);
     const FAKE_ADDRESS2 = "0x" + "2".repeat(40);
-    const onlyOwnerReason = "SFGovII: only owner is authorized";
 
     let alice;
     let superfluid;
@@ -48,33 +48,33 @@ describe("Superfluid Ownable Governance Contract", function () {
     });
 
     it("#0.1 authorization checks", async () => {
-        await expectRevert(
+        await expectCustomErrorRevert(
             governance.replaceGovernance(superfluid.address, ZERO_ADDRESS),
-            onlyOwnerReason
+            "OnlyOwnerAllowed()"
         );
-        await expectRevert(
+        await expectCustomErrorRevert(
             governance.registerAgreementClass(superfluid.address, ZERO_ADDRESS),
-            onlyOwnerReason
+            "OnlyOwnerAllowed()"
         );
-        await expectRevert(
+        await expectCustomErrorRevert(
             governance.updateContracts(
                 superfluid.address,
                 ZERO_ADDRESS,
                 [],
                 ZERO_ADDRESS
             ),
-            onlyOwnerReason
+            "OnlyOwnerAllowed()"
         );
-        await expectRevert(
+        await expectCustomErrorRevert(
             governance.batchUpdateSuperTokenLogic(superfluid.address, [
                 ZERO_ADDRESS,
             ]),
-            onlyOwnerReason
+            "OnlyOwnerAllowed()"
         );
 
-        await expectRevert(
+        await expectCustomErrorRevert(
             governance.updateCode(FAKE_ADDRESS1),
-            onlyOwnerReason
+            "OnlyOwnerAllowed()"
         );
     });
 
@@ -120,17 +120,17 @@ describe("Superfluid Ownable Governance Contract", function () {
 
     describe("#2 configurations", () => {
         it("#2.1 RewardAddress", async () => {
-            await expectRevert(
+            await expectCustomErrorRevert(
                 governance.setRewardAddress(
                     superfluid.address,
                     ZERO_ADDRESS,
                     FAKE_ADDRESS1
                 ),
-                onlyOwnerReason
+                "OnlyOwnerAllowed()"
             );
-            await expectRevert(
+            await expectCustomErrorRevert(
                 governance.clearRewardAddress(superfluid.address, ZERO_ADDRESS),
-                onlyOwnerReason
+                "OnlyOwnerAllowed()"
             );
 
             await web3tx(
@@ -172,21 +172,21 @@ describe("Superfluid Ownable Governance Contract", function () {
         });
 
         it("#2.2 TrustedForwarders", async () => {
-            await expectRevert(
+            await expectCustomErrorRevert(
                 governance.enableTrustedForwarder(
                     superfluid.address,
                     ZERO_ADDRESS,
                     FAKE_ADDRESS1
                 ),
-                onlyOwnerReason
+                "OnlyOwnerAllowed()"
             );
-            await expectRevert(
+            await expectCustomErrorRevert(
                 governance.clearTrustedForwarder(
                     superfluid.address,
                     ZERO_ADDRESS,
                     FAKE_ADDRESS1
                 ),
-                onlyOwnerReason
+                "OnlyOwnerAllowed()"
             );
 
             await web3tx(
@@ -298,19 +298,19 @@ describe("Superfluid Ownable Governance Contract", function () {
         });
 
         it("#2.3 PPPConfig", async () => {
-            await expectRevert(
+            await expectCustomErrorRevert(
                 governance.setPPPConfig(
                     superfluid.address,
                     ZERO_ADDRESS,
                     420,
                     69
                 ),
-                onlyOwnerReason
+                "OnlyOwnerAllowed()"
             );
 
-            await expectRevert(
+            await expectCustomErrorRevert(
                 governance.clearPPPConfig(superfluid.address, ZERO_ADDRESS),
-                onlyOwnerReason
+                "OnlyOwnerAllowed()"
             );
 
             await web3tx(
@@ -365,20 +365,20 @@ describe("Superfluid Ownable Governance Contract", function () {
             );
         });
         it("#2.4 SuperTokenMinimumDeposit", async () => {
-            await expectRevert(
+            await expectCustomErrorRevert(
                 governance.setSuperTokenMinimumDeposit(
                     superfluid.address,
                     ZERO_ADDRESS,
                     42069
                 ),
-                onlyOwnerReason
+                "OnlyOwnerAllowed()"
             );
-            await expectRevert(
+            await expectCustomErrorRevert(
                 governance.clearSuperTokenMinimumDeposit(
                     superfluid.address,
                     ZERO_ADDRESS
                 ),
-                onlyOwnerReason
+                "OnlyOwnerAllowed()"
             );
             await web3tx(
                 governance.setSuperTokenMinimumDeposit,
@@ -423,13 +423,13 @@ describe("Superfluid Ownable Governance Contract", function () {
                 "42069"
             );
 
-            await expectRevert(
+            await expectCustomErrorRevert(
                 governance.batchUpdateSuperTokenMinimumDeposit(
                     superfluid.address,
                     [FAKE_TOKEN_ADDRESS1, FAKE_TOKEN_ADDRESS2],
                     [42033, 6988]
                 ),
-                onlyOwnerReason
+                "OnlyOwnerAllowed()"
             );
             await web3tx(
                 governance.batchUpdateSuperTokenMinimumDeposit,
@@ -462,12 +462,12 @@ describe("Superfluid Ownable Governance Contract", function () {
         });
 
         it("#2.5 whiteListNewApp", async () => {
-            await expectRevert(
+            await expectCustomErrorRevert(
                 governance.whiteListNewApp(
                     superfluid.address,
                     web3.utils.sha3("test")
                 ),
-                onlyOwnerReason
+                "OnlyOwnerAllowed()"
             );
             await governance.whiteListNewApp(
                 superfluid.address,
@@ -485,21 +485,21 @@ describe("Superfluid Ownable Governance Contract", function () {
             const appFactory = await SuperAppFactoryMock.new();
 
             // checks for authorize
-            await expectRevert(
+            await expectCustomErrorRevert(
                 governance.authorizeAppFactory(
                     superfluid.address,
                     appFactory.address
                 ),
-                onlyOwnerReason
+                "OnlyOwnerAllowed()"
             );
 
-            await expectRevert(
+            await expectCustomErrorRevert(
                 governance.authorizeAppFactory(
                     superfluid.address,
                     FAKE_ADDRESS1,
                     {from: alice}
                 ),
-                "SFGov: factory must be a contract"
+                "NonContractFactory()"
             );
 
             assert.isFalse(
@@ -521,12 +521,12 @@ describe("Superfluid Ownable Governance Contract", function () {
             );
 
             // checks for unauthorize
-            await expectRevert(
+            await expectCustomErrorRevert(
                 governance.unauthorizeAppFactory(
                     superfluid.address,
                     appFactory.address
                 ),
-                onlyOwnerReason
+                "OnlyOwnerAllowed()"
             );
             await governance.unauthorizeAppFactory(
                 superfluid.address,
@@ -550,24 +550,24 @@ describe("Superfluid Ownable Governance Contract", function () {
             );
 
             // only owner can set config
-            await expectRevert(
+            await expectCustomErrorRevert(
                 governance.setConfig(
                     superfluid.address,
                     ZERO_ADDRESS,
                     SUPERFLUID_REWARD_ADDRESS_CONFIG_KEY,
                     FAKE_ADDRESS1
                 ),
-                onlyOwnerReason
+                "OnlyOwnerAllowed()"
             );
 
             // only owner can clear config
-            await expectRevert(
+            await expectCustomErrorRevert(
                 governance.clearConfig(
                     superfluid.address,
                     ZERO_ADDRESS,
                     SUPERFLUID_REWARD_ADDRESS_CONFIG_KEY
                 ),
-                onlyOwnerReason
+                "OnlyOwnerAllowed()"
             );
 
             await web3tx(
@@ -630,24 +630,24 @@ describe("Superfluid Ownable Governance Contract", function () {
             );
 
             // only owner can set config
-            await expectRevert(
+            await expectCustomErrorRevert(
                 governance.setConfig(
                     superfluid.address,
                     ZERO_ADDRESS,
                     SUPERTOKEN_MINIMUM_DEPOSIT_KEY,
                     42069
                 ),
-                onlyOwnerReason
+                "OnlyOwnerAllowed()"
             );
 
             // only owner can clear config
-            await expectRevert(
+            await expectCustomErrorRevert(
                 governance.clearConfig(
                     superfluid.address,
                     ZERO_ADDRESS,
                     SUPERTOKEN_MINIMUM_DEPOSIT_KEY
                 ),
-                onlyOwnerReason
+                "OnlyOwnerAllowed()"
             );
 
             await web3tx(

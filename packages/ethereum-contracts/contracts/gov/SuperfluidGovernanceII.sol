@@ -20,8 +20,11 @@ contract SuperfluidGovernanceII is
     UUPSProxiable,
     SuperfluidGovernanceBase
 {
+    /// SFGovII: only owner is authorized
+    error OnlyOwnerAllowed();
+
     function _requireAuthorised() private view {
-        require(owner() == _msgSender(), "SFGovII: only owner is authorized");
+        if (owner() != _msgSender()) revert OnlyOwnerAllowed();
     }
 
     /**************************************************************************

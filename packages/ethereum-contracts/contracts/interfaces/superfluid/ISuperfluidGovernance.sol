@@ -13,6 +13,15 @@ import { ISuperfluid } from "./ISuperfluid.sol";
  */
 interface ISuperfluidGovernance {
 
+    /// SFGov: arrays are not the same length
+    error DifferentArrayLengths();
+
+    /// SFGov: Invalid liquidationPeriod or patricianPeriod
+    error InvalidPPPConfig();
+
+    /// SFGov: factory must be a contract
+    error NonContractFactory();
+
     /**
      * @dev Replace the current governance with a new governance
      */
