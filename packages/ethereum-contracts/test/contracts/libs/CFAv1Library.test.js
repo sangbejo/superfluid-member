@@ -3,7 +3,6 @@ const TestEnvironment = require("../../TestEnvironment");
 // const {BN, expectRevert} = require("@openzeppelin/test-helpers");
 // const {web3tx, toWad, toBN} = require("@decentral.ee/web3-helpers");
 const {web3tx, toBN} = require("@decentral.ee/web3-helpers");
-const {expectRevert} = require("@openzeppelin/test-helpers");
 const expectCustomErrorRevert = require("../utils/expectCustomRevert");
 const SuperTokenMock = artifacts.require("SuperTokenMock");
 const initialSupply = toBN(100);
@@ -359,14 +358,14 @@ describe("CFAv1 Library testing", function () {
         });
 
         it("4.4 - It should revert if given an invalid ctx", async () => {
-            await expectRevert(
+            await expectCustomErrorRevert(
                 CFALibraryMock.createFlowWithCtxTest(
                     "0x",
                     bob,
                     superToken.address,
                     "2858024691358"
                 ),
-                "SF: APP_RULE_CTX_IS_NOT_VALID"
+                "AppRuleInvalidContext()"
             );
         });
     });

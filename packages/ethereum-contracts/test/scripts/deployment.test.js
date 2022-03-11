@@ -6,6 +6,7 @@ const deployFramework = require("../../scripts/deploy-framework");
 const deployTestToken = require("../../scripts/deploy-test-token");
 const deploySuperToken = require("../../scripts/deploy-super-token");
 const deployTestEnvironment = require("../../scripts/deploy-test-environment");
+const expectCustomErrorRevert = require("../contracts/utils/expectCustomRevert");
 const Resolver = artifacts.require("Resolver");
 const UUPSProxiable = artifacts.require("UUPSProxiable");
 const Superfluid = artifacts.require("Superfluid");
@@ -196,13 +197,13 @@ contract("Embeded deployment scripts", (accounts) => {
                     nonUpgradable: true,
                     useMocks: false,
                 });
-                await expectRevert(
+                await expectCustomErrorRevert(
                     deployFramework(errorHandler, {
                         ...deploymentOptions,
                         nonUpgradable: true,
                         useMocks: true, // force an update attempt
                     }),
-                    "SF: non upgradable"
+                    "NonUpgradeable()"
                 );
             });
 

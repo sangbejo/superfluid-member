@@ -29,6 +29,100 @@ import { IERC777 } from "@openzeppelin/contracts/token/ERC777/IERC777.sol";
  *
  */
 interface ISuperfluid {
+    
+    /**************************************************************************
+     * Custom Errors
+     *************************************************************************/
+    
+    /// SF: non upgradable
+    error NonUpgradeable();
+
+    /// SF: cannot downgrade to non upgradable
+    error NonUpgradeableDowngrade();
+
+    /// SF: agreement class already registered
+    error AgreementClassAlreadyRegistered();
+
+    /// SF: support up to 256 agreement classes
+    error MaxAgreementClassesReached();
+
+    /// SF: agreement class not registered
+    error AgreementClassNotRegistered();
+
+    /// SF: invalid registration key
+    error InvalidRegistrationKey();
+
+    /// SF: registration key already used
+    error RegistrationKeyAlreadyUsed();
+
+    /// SF: factory must be a contract
+    error NonContractFactory();
+
+    /// SF: authorized factory required
+    error AuthorizedFactoryRequired();
+
+    /// SF: APP_RULE_COMPOSITE_APP_IS_NOT_WHITELISTED
+    error AppRuleCompositeAppNotWhitelisted();
+
+    /// SF: APP_RULE_NO_REGISTRATION_FOR_EOA
+    error AppRuleNoRegistrationForEOA();
+
+    /// SF: APP_RULE_REGISTRATION_ONLY_IN_CONSTRUCTOR
+    error AppRuleRegistrationOnlyInConstructor();
+
+    /// SF: invalid config word
+    error InvalidConfigWord();
+
+    /// SF: app already registered
+    error AppAlreadyRegistered();
+
+    /// SF: sender is not an app
+    error NonAppSender();
+
+    /// SF: target is not an app
+    error NonAppTarget();
+
+    /// SF: source app should have higher app level
+    error SourceAppShouldHaveHigherLevel();
+
+    /// SF: APP_RULE_CTX_IS_READONLY
+    error AppRuleReadonlyContext();
+
+    /// SF: APP_RULE_CTX_IS_NOT_VALID
+    error AppRuleInvalidContext();
+
+    /// SF: callAgreementWithContext from wrong address
+    error IncorrectCallAgreementWithContextAddress();
+
+    /// SF: callAppActionWithContext from wrong address
+    error IncorrectCallAppActionWithContextAddress();
+
+    /// SF: APP_RULE_MAX_APP_LEVEL_REACHED
+    error AppRuleMaxAppLevelReached();
+
+    /// SF: APP_RULE_CTX_IS_EMPTY
+    error AppRuleContextIsEmpty();
+
+    /// SF: placeholder ctx should have zero length
+    error NonZeroLengthPlaceholderContext();
+
+    /// SF: APP_RULE_CTX_IS_NOT_CLEAN
+    error AppRuleUncleanContext();
+
+    /// SF: only listed agreeement allowed
+    error OnlyListedAgreementAllowed();
+
+    /// SF: only governance allowed
+    error OnlyGovernanceAllowed();
+
+    /// SF: sender is not listed agreeement
+    error SenderIsNotListedAgreement();
+
+    /// SF: not a super app
+    error NotSuperApp();
+
+    /// SF: app is jailed
+    error AppIsJailed();
 
     /**************************************************************************
      * Governance

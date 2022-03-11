@@ -115,8 +115,8 @@ contract Superfluid is
     }
 
     function updateCode(address newAddress) external override onlyGovernance {
-        require(!NON_UPGRADABLE_DEPLOYMENT, "SF: non upgradable");
-        require(!Superfluid(newAddress).NON_UPGRADABLE_DEPLOYMENT(), "SF: cannot downgrade to non upgradable");
+        if (NON_UPGRADABLE_DEPLOYMENT) revert NonUpgradeable();
+        if (Superfluid(newAddress).NON_UPGRADABLE_DEPLOYMENT()) revert NonUpgradeableDowngrade();
         _updateCodeAddress(newAddress);
     }
 
@@ -139,10 +139,8 @@ contract Superfluid is
 
     function registerAgreementClass(ISuperAgreement agreementClassLogic) external onlyGovernance override {
         bytes32 agreementType = agreementClassLogic.agreementType();
-        require(_agreementClassIndices[agreementType] == 0,
-            "SF: agreement class already registered");
-        require(_agreementClasses.length < 256,
-            "SF: support up to 256 agreement classes");
+        if (_agreementClassIndices[agreementType] != 0) revert AgreementClassAlreadyRegistered();
+        if (_agreementClasses.length >= 256) revert MaxAgreementClassesReached();
         ISuperAgreement agreementClass;
         if (!NON_UPGRADABLE_DEPLOYMENT) {
             // initialize the proxy
@@ -159,10 +157,10 @@ contract Superfluid is
     }
 
     function updateAgreementClass(ISuperAgreement agreementClassLogic) external onlyGovernance override {
-        require(!NON_UPGRADABLE_DEPLOYMENT, "SF: non upgradable");
+        if (NON_UPGRADABLE_DEPLOYMENT) revert NonUpgradeable();
         bytes32 agreementType = agreementClassLogic.agreementType();
         uint idx = _agreementClassIndices[agreementType];
-        require(idx != 0, "SF: agreement class not registered");
+        if (idx == 0) revert AgreementClassNotRegistered();
         UUPSProxiable proxiable = UUPSProxiable(address(_agreementClasses[idx - 1]));
         proxiable.updateCode(address(agreementClassLogic));
         emit AgreementClassUpdated(agreementType, address(agreementClassLogic));
@@ -191,7 +189,7 @@ contract Superfluid is
         returns(ISuperAgreement agreementClass)
     {
         uint idx = _agreementClassIndices[agreementType];
-        require(idx != 0, "SF: agreement class not registered");
+        if (idx == 0) revert AgreementClassNotRegistered();
         return ISuperAgreement(_agreementClasses[idx - 1]);
     }
 
@@ -218,7 +216,7 @@ contract Superfluid is
         returns (uint256 newBitmap)
     {
         uint idx = _agreementClassIndices[agreementType];
-        require(idx != 0, "SF: agreement class not registered");
+        if (idx == 0) revert AgreementClassNotRegistered();
         return bitmap | (1 << (idx - 1));
     }
 
@@ -227,7 +225,7 @@ contract Superfluid is
         returns (uint256 newBitmap)
     {
         uint idx = _agreementClassIndices[agreementType];
-        require(idx != 0, "SF: agreement class not registered");
+        if (idx == 0) revert AgreementClassNotRegistered();
         return bitmap & ~(1 << (idx - 1));
     }
 
@@ -266,7 +264,7 @@ contract Superfluid is
             }
             _superTokenFactory.initialize();
         } else {
-            require(!NON_UPGRADABLE_DEPLOYMENT, "SF: non upgradable");
+            if (NON_UPGRADABLE_DEPLOYMENT) revert NonUpgradeable();
             UUPSProxiable(address(_superTokenFactory)).updateCode(address(newFactory));
         }
         emit SuperTokenFactoryUpdated(_superTokenFactory);
@@ -307,18 +305,14 @@ contract Superfluid is
             registrationKey
         );
         // check if the key is enabled
-        require(
+        if (
             _gov.getConfigAsUint256(
                 this,
                 ISuperfluidToken(address(0)),
                 configKey
-            ) == 1,
-            "SF: invalid registration key"
-        );
-        require(
-            !_appKeysUsed[configKey],
-            "SF: registration key already used"
-        );
+            ) != 1
+        ) revert InvalidRegistrationKey();
+        if (_appKeysUsed[configKey]) revert RegistrationKeyAlreadyUsed();
         // clear the key so that it can't be reused
         _appKeysUsed[configKey] = true;
         _registerApp(configWord, ISuperApp(msg.sender), true);
@@ -335,7 +329,7 @@ contract Superfluid is
             uint256 cs;
             // solhint-disable-next-line no-inline-assembly
             assembly { cs := extcodesize(caller()) }
-            require(cs > 0, "SF: factory must be a contract");
+            if (cs == 0) revert NonContractFactory();
         }
 
         if (APP_WHITE_LISTING_ENABLED) {
@@ -346,7 +340,7 @@ contract Superfluid is
                 ISuperfluidToken(address(0)),
                 configKey) == 1;
 
-            require(isAuthorizedAppFactory, "SF: authorized factory required");
+            if (!isAuthorizedAppFactory) revert AuthorizedFactoryRequired();
         }
         _registerApp(configWord, app, false);
     }
@@ -354,20 +348,18 @@ contract Superfluid is
     function _registerApp(uint256 configWord, ISuperApp app, bool checkIfInAppConstructor) private
     {
         // solhint-disable-next-line avoid-tx-origin
-        require(msg.sender != tx.origin, "SF: APP_RULE_NO_REGISTRATION_FOR_EOA");
+        if (msg.sender == tx.origin) revert AppRuleNoRegistrationForEOA();
 
         if (checkIfInAppConstructor) {
             uint256 cs;
             // solhint-disable-next-line no-inline-assembly
             assembly { cs := extcodesize(app) }
-            require(cs == 0, "SF: APP_RULE_REGISTRATION_ONLY_IN_CONSTRUCTOR");
+            if (cs != 0) revert AppRuleRegistrationOnlyInConstructor();
         }
-        require(
-            SuperAppDefinitions.isConfigWordClean(configWord) &&
-            SuperAppDefinitions.getAppLevel(configWord) > 0 &&
-            (configWord & SuperAppDefinitions.APP_JAIL_BIT) == 0,
-            "SF: invalid config word");
-        require(_appManifests[ISuperApp(app)].configWord == 0 , "SF: app already registered");
+        if (!SuperAppDefinitions.isConfigWordClean(configWord) ||
+            SuperAppDefinitions.getAppLevel(configWord) <= 0 ||
+            (configWord & SuperAppDefinitions.APP_JAIL_BIT) != 0) revert InvalidConfigWord();
+        if (_appManifests[ISuperApp(app)].configWord != 0) revert AppAlreadyRegistered();
         _appManifests[ISuperApp(app)] = AppManifest(configWord);
         emit AppRegistered(app);
     }
@@ -413,9 +405,9 @@ contract Superfluid is
         external override
     {
         ISuperApp sourceApp = ISuperApp(msg.sender);
-        require(isApp(sourceApp), "SF: sender is not an app");
-        require(isApp(targetApp), "SF: target is not an app");
-        require(getAppLevel(sourceApp) > getAppLevel(targetApp), "SF: source app should have higher app level");
+        if (!isApp(sourceApp)) revert NonAppSender();
+        if (!isApp(targetApp)) revert NonAppTarget();
+        if (getAppLevel(sourceApp) <= getAppLevel(targetApp)) revert SourceAppShouldHaveHigherLevel();
         _compositeApps[ISuperApp(msg.sender)][targetApp] = true;
     }
 
@@ -506,8 +498,7 @@ contract Superfluid is
     {
         Context memory context = decodeCtx(ctx);
         if (isApp(ISuperApp(context.msgSender))) {
-            require(_compositeApps[ISuperApp(context.msgSender)][app],
-                "SF: APP_RULE_COMPOSITE_APP_IS_NOT_WHITELISTED");
+            if (!_compositeApps[ISuperApp(context.msgSender)][app]) revert AppRuleCompositeAppNotWhitelisted();
         }
         context.appLevel++;
         context.callType = ContextDefinitions.CALL_INFO_CALL_TYPE_APP_CALLBACK;
@@ -644,7 +635,7 @@ contract Superfluid is
         (success, returnedData) = _callExternalWithReplacedCtx(address(app), callData, ctx);
         if (success) {
             ctx = abi.decode(returnedData, (bytes));
-            require(_isCtxValid(ctx), "SF: APP_RULE_CTX_IS_READONLY");
+            if (!_isCtxValid(ctx)) revert AppRuleReadonlyContext();
         } else {
             CallUtils.revertFromReturnedData(returnedData);
         }
@@ -680,7 +671,7 @@ contract Superfluid is
         returns (bytes memory newCtx, bytes memory returnedData)
     {
         Context memory context = decodeCtx(ctx);
-        require(context.appAddress == msg.sender,  "SF: callAgreementWithContext from wrong address");
+        if (context.appAddress != msg.sender) revert IncorrectCallAgreementWithContextAddress();
 
         address oldSender = context.msgSender;
         context.msgSender = msg.sender;
@@ -713,7 +704,7 @@ contract Superfluid is
         returns(bytes memory newCtx)
     {
         Context memory context = decodeCtx(ctx);
-        require(context.appAddress == msg.sender,  "SF: callAppActionWithContext from wrong address");
+        if (context.appAddress != msg.sender) revert IncorrectCallAppActionWithContextAddress();
 
         address oldSender = context.msgSender;
         context.msgSender = msg.sender;
@@ -722,7 +713,7 @@ contract Superfluid is
         (bool success, bytes memory returnedData) = _callExternalWithReplacedCtx(address(app), callData, newCtx);
         if (success) {
             (newCtx) = abi.decode(returnedData, (bytes));
-            require(_isCtxValid(newCtx), "SF: APP_RULE_CTX_IS_READONLY");
+            if (!_isCtxValid(newCtx)) revert AppRuleReadonlyContext();
             // back to old msg.sender
             context = decodeCtx(newCtx);
             context.msgSender = oldSender;
@@ -852,7 +843,7 @@ contract Superfluid is
         private
         returns (bytes memory ctx)
     {
-        require(context.appLevel <= MAX_APP_LEVEL, "SF: APP_RULE_MAX_APP_LEVEL_REACHED");
+        if (context.appLevel > MAX_APP_LEVEL) revert AppRuleMaxAppLevelReached();
         uint256 callInfo = ContextDefinitions.encodeCallInfo(context.appLevel, context.callType);
         uint256 allowanceIO =
             context.appAllowanceGranted.toUint128() |
@@ -939,7 +930,7 @@ contract Superfluid is
         (success, returnedData) = target.call(callData);
 
         if (success) {
-            require(returnedData.length > 0, "SF: APP_RULE_CTX_IS_EMPTY");
+            if (returnedData.length == 0) revert AppRuleContextIsEmpty();
         }
     }
 
@@ -1005,7 +996,7 @@ contract Superfluid is
             // NOTE: len(data) is data.length + 32 https://docs.soliditylang.org/en/latest/abi-spec.html
             // solhint-disable-next-line no-inline-assembly
             assembly { placeHolderCtxLength := mload(add(data, dataLen)) }
-            require(placeHolderCtxLength == 0, "SF: placerholder ctx should have zero length");
+            if (placeHolderCtxLength != 0) revert NonZeroLengthPlaceholderContext();
         }
 
         // 1.b remove the placeholder ctx
@@ -1026,34 +1017,34 @@ contract Superfluid is
     }
 
     modifier validCtx(bytes memory ctx) {
-        require(_isCtxValid(ctx), "SF: APP_RULE_CTX_IS_NOT_VALID");
+        if (!_isCtxValid(ctx)) revert AppRuleInvalidContext();
         _;
     }
 
     modifier cleanCtx() {
-        require(_ctxStamp == 0, "SF: APP_RULE_CTX_IS_NOT_CLEAN");
+        if(_ctxStamp != 0) revert AppRuleUncleanContext();
         _;
     }
 
     modifier isAgreement(ISuperAgreement agreementClass) {
-        require(isAgreementClassListed(agreementClass), "SF: only listed agreeement allowed");
+        if (!isAgreementClassListed(agreementClass)) revert OnlyListedAgreementAllowed();
         _;
     }
 
     modifier onlyGovernance() {
-        require(msg.sender == address(_gov), "SF: only governance allowed");
+        if (msg.sender != address(_gov)) revert OnlyGovernanceAllowed();
         _;
     }
 
     modifier onlyAgreement() {
-        require(isAgreementClassListed(ISuperAgreement(msg.sender)), "SF: sender is not listed agreeement");
+        if (!isAgreementClassListed(ISuperAgreement(msg.sender))) revert SenderIsNotListedAgreement();
         _;
     }
 
     modifier isAppActive(ISuperApp app) {
         uint256 w = _appManifests[app].configWord;
-        require(w > 0, "SF: not a super app");
-        require(!SuperAppDefinitions.isAppJailed(w), "SF: app is jailed");
+        if (w == 0) revert NotSuperApp();
+        if (SuperAppDefinitions.isAppJailed(w)) revert AppIsJailed();
         _;
     }
 }

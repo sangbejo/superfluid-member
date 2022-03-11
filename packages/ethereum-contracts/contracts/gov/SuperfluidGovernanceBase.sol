@@ -459,7 +459,7 @@ abstract contract SuperfluidGovernanceBase is ISuperfluidGovernance
             uint256 cs;
             // solhint-disable-next-line no-inline-assembly
             assembly { cs := extcodesize(factory) }
-            if (cs <= 0) revert NonContractFactory();
+            if (cs == 0) revert NonContractFactory();
         }
 
         _setConfig(
