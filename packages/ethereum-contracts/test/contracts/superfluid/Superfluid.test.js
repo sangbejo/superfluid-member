@@ -1457,13 +1457,13 @@ describe("Superfluid Host Contract", function () {
             });
 
             it("#7.2 callData without correct selector", async () => {
-                await expectRevert(
+                await expectCustomErrorRevert(
                     superfluid.callAgreement(
                         t.contracts.cfa.address,
                         "0x",
                         "0x"
                     ),
-                    "CallUtils: invalid callData"
+                    "InvalidCallData()"
                 );
             });
         });

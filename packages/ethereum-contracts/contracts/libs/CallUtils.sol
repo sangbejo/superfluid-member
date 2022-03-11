@@ -6,6 +6,8 @@ pragma solidity 0.8.12;
  * @author Superfluid
  */
 library CallUtils {
+    /// CallUtils: invalid callData
+    error InvalidCallData();
 
     /// @dev Bubble up the revert from the returnedData (supports Panic, Error & Custom Errors)
     /// @notice This is needed in order to provide some human-readable revert message from a call
@@ -57,7 +59,7 @@ library CallUtils {
     * blob/master/contracts/modules/common/Utils.sol#L54-L60
     */
     function parseSelector(bytes memory callData) internal pure returns (bytes4 selector) {
-        require(callData.length >= 4, "CallUtils: invalid callData");
+        if (callData.length < 4) revert InvalidCallData();
         // solhint-disable-next-line no-inline-assembly
         assembly {
             selector := mload(add(callData, 0x20))

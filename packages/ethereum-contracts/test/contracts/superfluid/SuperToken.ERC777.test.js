@@ -4,6 +4,7 @@ const {expectRevert, expectEvent} = require("@openzeppelin/test-helpers");
 const {expect} = require("chai");
 
 const {web3tx, toWad} = require("@decentral.ee/web3-helpers");
+const expectCustomErrorRevert = require("../utils/expectCustomRevert");
 
 const {
     shouldBehaveLikeERC777DirectSendBurn,
@@ -248,16 +249,16 @@ describe("SuperToken's ERC777 implementation", function () {
             });
 
             it("reverts when self-authorizing", async function () {
-                await expectRevert(
+                await expectCustomErrorRevert(
                     this.token.authorizeOperator(holder, {from: holder}),
-                    "ERC777Operators: authorizing self as operator"
+                    "OperatorAuthorizingSelf()"
                 );
             });
 
             it("reverts when self-revoking", async function () {
-                await expectRevert(
+                await expectCustomErrorRevert(
                     this.token.revokeOperator(holder, {from: holder}),
-                    "ERC777Operators: revoking self as operator"
+                    "OperatorRevokingSelf()"
                 );
             });
 

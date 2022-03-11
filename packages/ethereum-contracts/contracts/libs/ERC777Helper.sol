@@ -9,6 +9,12 @@ import { IERC1820Registry } from "@openzeppelin/contracts/utils/introspection/IE
  */
 library ERC777Helper {
 
+    /// ERC777Operators: authorizing self as operator
+    error OperatorAuthorizingSelf();
+
+    /// ERC777Operators: revoking self as operator
+    error OperatorRevokingSelf();
+
     IERC1820Registry constant internal _ERC1820_REGISTRY =
         IERC1820Registry(0x1820a4B7618BdE71Dce8cdc73aAB6C95905faD24);
 
@@ -44,7 +50,7 @@ library ERC777Helper {
     }
 
     function authorizeOperator(Operators storage self, address holder, address operator) internal {
-        require(holder != operator, "ERC777Operators: authorizing self as operator");
+        if (operator == msg.sender) revert OperatorAuthorizingSelf();
 
         if (self.defaultOperators[operator]) {
             delete self.revokedDefaultOperators[holder][operator];
@@ -54,7 +60,7 @@ library ERC777Helper {
     }
 
     function revokeOperator(Operators storage self, address holder, address operator) internal {
-        require(operator != msg.sender, "ERC777Operators: revoking self as operator");
+        if (operator == msg.sender) revert OperatorRevokingSelf();
         if (self.defaultOperators[operator]) {
             self.revokedDefaultOperators[holder][operator] = true;
         } else {
