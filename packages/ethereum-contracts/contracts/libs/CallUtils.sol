@@ -9,6 +9,8 @@ library CallUtils {
     /// CallUtils: invalid callData
     error InvalidCallData();
 
+    error NewCustomError(bytes test);
+
     /// @dev Bubble up the revert from the returnedData (supports Panic, Error & Custom Errors)
     /// @notice This is needed in order to provide some human-readable revert message from a call
     /// @param returnedData Response of the call

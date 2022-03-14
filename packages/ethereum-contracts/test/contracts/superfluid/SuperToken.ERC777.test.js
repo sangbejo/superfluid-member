@@ -1,6 +1,6 @@
 const TestEnvironment = require("../../TestEnvironment");
 
-const {expectRevert, expectEvent} = require("@openzeppelin/test-helpers");
+const {expectEvent} = require("@openzeppelin/test-helpers");
 const {expect} = require("chai");
 
 const {web3tx, toWad} = require("@decentral.ee/web3-helpers");
@@ -382,11 +382,11 @@ describe("SuperToken's ERC777 implementation", function () {
                 });
 
                 it("cannot be revoked for themselves", async function () {
-                    await expectRevert(
+                    await expectCustomErrorRevert(
                         this.token.revokeOperator(defaultOperatorA, {
                             from: defaultOperatorA,
                         }),
-                        "ERC777Operators: revoking self as operator"
+                        "OperatorRevokingSelf()"
                     );
                 });
 

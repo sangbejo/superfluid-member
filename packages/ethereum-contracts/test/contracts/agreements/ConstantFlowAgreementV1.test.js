@@ -1,6 +1,6 @@
 const TestEnvironment = require("../../TestEnvironment");
 
-const {BN, expectEvent} = require("@openzeppelin/test-helpers");
+const {BN, expectEvent, expectRevert} = require("@openzeppelin/test-helpers");
 const {web3tx, toWad, toBN} = require("@decentral.ee/web3-helpers");
 const {
     shouldCreateFlow,
@@ -299,6 +299,12 @@ describe("Using ConstantFlowAgreement v1", function () {
                 await timeTravelOnceAndVerifyAll();
             });
 
+            // FIXME: this is breaking because:
+            // callAgreement => _callAgreement => _callExternalWithReplacedCtx
+            // => _replacePlaceholderCtx => which has mload and mstore and is
+            // messing with revertFromReturnedData (custom error case)
+            // there is also some issue with _getAgreementData => token.getAgreementData
+            // => FixedSizeData.loadData
             it("#1.1.2 should reject when there is not enough balance", async () => {
                 await expectCustomErrorRevert(
                     t.sf.cfa.createFlow({
@@ -357,7 +363,7 @@ describe("Using ConstantFlowAgreement v1", function () {
                     receiver,
                     flowRate: FLOW_RATE1,
                 });
-                await expectCustomErrorRevert(
+                await expectRevert(
                     t.sf.cfa.createFlow({
                         superToken: superToken.address,
                         sender: t.aliases[sender],
@@ -369,7 +375,7 @@ describe("Using ConstantFlowAgreement v1", function () {
             });
 
             it("#1.1.7 should reject when overflow flow rate", async () => {
-                await expectCustomErrorRevert(
+                await expectRevert(
                     t.sf.cfa.createFlow({
                         superToken: superToken.address,
                         sender: t.aliases[sender],
@@ -505,7 +511,7 @@ describe("Using ConstantFlowAgreement v1", function () {
             });
 
             it("#1.2.9 should reject when overflow flow rate", async () => {
-                await expectCustomErrorRevert(
+                await expectRevert(
                     t.sf.cfa.updateFlow({
                         superToken: superToken.address,
                         sender: t.aliases[sender],

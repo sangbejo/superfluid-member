@@ -70,6 +70,9 @@ interface ISuperfluid {
     /// SF: APP_RULE_REGISTRATION_ONLY_IN_CONSTRUCTOR
     error AppRuleRegistrationOnlyInConstructor();
 
+    /// SF: APP_RULE_CTX_IS_MALFORMATED
+    error AppRuleContextIsMalformated();
+
     /// SF: invalid config word
     error InvalidConfigWord();
 

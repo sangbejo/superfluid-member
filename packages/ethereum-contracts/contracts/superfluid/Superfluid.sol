@@ -441,14 +441,13 @@ contract Superfluid is
                 cbdata = abi.decode(returnedData, (bytes));
             } else {
                 if (!isTermination) {
-                    revert("SF: APP_RULE_CTX_IS_MALFORMATED");
+                    revert AppRuleContextIsMalformated();
                 } else {
                     _jailApp(app, SuperAppDefinitions.APP_RULE_CTX_IS_MALFORMATED);
                 }
             }
         }
     }
-
     function callAppAfterCallback(
         ISuperApp app,
         bytes calldata callData,
@@ -466,7 +465,7 @@ contract Superfluid is
                 newCtx = abi.decode(returnedData, (bytes));
                 if (!_isCtxValid(newCtx)) {
                     if (!isTermination) {
-                        revert("SF: APP_RULE_CTX_IS_READONLY");
+                        revert AppRuleReadonlyContext();
                     } else {
                         newCtx = ctx;
                         _jailApp(app, SuperAppDefinitions.APP_RULE_CTX_IS_READONLY);
@@ -474,7 +473,7 @@ contract Superfluid is
                 }
             } else {
                 if (!isTermination) {
-                    revert("SF: APP_RULE_CTX_IS_MALFORMATED");
+                    revert AppRuleContextIsMalformated();
                 } else {
                     newCtx = ctx;
                     _jailApp(app, SuperAppDefinitions.APP_RULE_CTX_IS_MALFORMATED);

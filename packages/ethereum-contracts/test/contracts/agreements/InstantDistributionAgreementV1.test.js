@@ -70,6 +70,11 @@ describe("Using InstantDistributionAgreement v1", function () {
                 await verifyAll();
             });
 
+            // FIXME: this is breaking because:
+            // callAgreement => _callAgreement => _callExternalWithReplacedCtx
+            // => _replacePlaceholderCtx => which has mload and mstore and is
+            // messing with revertFromReturnedData (custom error case)
+            // there is also some issue with token.createAgreement/token.getAgreementData
             it("#1.1.2 publisher should fail to create the same index", async () => {
                 await shouldCreateIndex({
                     testenv: t,
