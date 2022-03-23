@@ -41,7 +41,6 @@
                 <span id="underlyingMeta"></span><br/>
                 <span id="superTokenMeta"></span><br/><br/>
                 <b><span id="superTokenAddr"></span></b><br/>
-    <!--            <button onclick="execFuncWithLoader(deployWrapper)">query</button>-->
             </div>
         </div>
 
@@ -108,11 +107,10 @@
                     }
                     connData.network = networks.filter(n => n.chainId === connData.chainId)[0];
                     if (connData.network === undefined) {
-                        alert(`ERR: wallet connected to unsupported network (chainId: ${connData.chainId}`);
+                        alert(`ERR: wallet connected to unsupported network (chainId: ${connData.chainId})`);
                         return;
                     }
                     $("#connect-wallet-btn").text(connData.userAddress + " | chain id: " + connData.chainId);
-                    $("#connect-wallet-prompt").toggle();
                 }
             }
 
