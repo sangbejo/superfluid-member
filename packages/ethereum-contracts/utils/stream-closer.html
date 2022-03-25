@@ -95,10 +95,8 @@
         async function connectWallet() {
             // does nothing if already connected
             if (!connData.provider) {
-                const response = await window.ethereum.request({ method: "eth_requestAccounts" });
-                connData.userAddress = response[0];
-
                 $("#connect-wallet-btn").text("connecting...");
+                await setAccount();
 
                 if (setNetwork(Number(window.ethereum.chainId))) {
                     $("#connect-wallet-btn").text(connData.userAddress + " | chain id: " + connData.chainId);
@@ -106,6 +104,11 @@
                     $("#connect-wallet-btn").text("not connected");
                 }
             }
+        }
+
+        async function setAccount() {
+            const response = await window.ethereum.request({ method: "eth_requestAccounts" });
+            connData.userAddress = response[0];
         }
 
         function setNetwork(chainId) {
@@ -127,14 +130,24 @@
             return true;
         }
 
-        // check if the connected wallet is set to the wanted chain in case a preference is set
-        function isChainIdMatching(walletChainId) {
-            if (connData.wantedChainId !== 0 &&
-                walletChainId !== connData.wantedChainId) {
-                alert(`Wallet NOT connected to a chain with wanted id ${walletChainId}`);
-                return false;
-            }
-            return true;
+        // handle network or account changes in wallet after init
+        if (window.ethereum) {
+            window.ethereum.on("accountsChanged", async accounts => {
+                console.log("on accounts changed: ", accounts[0]);
+                connData.userAddress = accounts[0];
+                $("#connect-wallet-btn").text(connData.userAddress + " | chain id: " + connData.chainId);
+            });
+            window.ethereum.on("chainChanged", async chainId => {
+                console.log("chain changed")
+                if (connData.userAddress === undefined) {
+                    await setAccount();
+                }
+                if (setNetwork(Number(chainId))) {
+                    $("#connect-wallet-btn").text(connData.userAddress + " | chain id: " + connData.chainId);
+                } else {
+                    $("#connect-wallet-btn").text("not connected");
+                }
+            });
         }
 
         async function closeStream() {
@@ -168,9 +181,14 @@
                     alert(`There exists no open flow with this parameters!`);
                     return;
                 }
+                
+                const prettyTimestamp = Date(flow.timestamp.toNumber()*1000);
+                const prettyFlowRate = `${ethers.utils.formatUnits(flow.flowRate.mul(3600*24))}/day`;
+                const prettyDeposit = ethers.utils.formatUnits(flow.deposit);
+                const prettyOwedDeposit = ethers.utils.formatUnits(flow.owedDeposit);
+                console.log(`Stream being closed: last updated timestamp ${prettyTimestamp}, flowRate ${prettyFlowRate}, deposit ${prettyDeposit}, owedDeposit ${prettyOwedDeposit}`);
 
-                console.log(`flow being closed: ${JSON.stringify(flow, null, 2)}`);
-                $("#flowData").text(`flow being closed: last updated timestamp ${flow.timestamp.toString()}, flowRate ${flow.flowRate.toString()}, deposit ${flow.deposit.toString()}, owedDeposit ${flow.owedDeposit.toString()}`);
+                $("#flowData").text(`Stream being closed: last updated timestamp ${prettyTimestamp}, flowRate ${prettyFlowRate}, deposit ${prettyDeposit}, owedDeposit ${prettyOwedDeposit}`);
 
                 const res = await host.callAgreement(
                     cfaV1Addr,
@@ -188,20 +206,6 @@
                 console.error(`closeStream failed with: ${JSON.stringify(e, null, 2)}`);
                 alert(`Error: ${JSON.stringify(e, null, 2)}`);
             }
-        }
-
-        if (window.ethereum) {
-            window.ethereum.on("accountsChanged", async accounts => {
-                connData.userAddress = accounts[0];
-                $("#connect-wallet-btn").text(connData.userAddress + " | chain id: " + connData.chainId);
-            });
-            window.ethereum.on("chainChanged", async chainId => {
-                if (setNetwork(Number(chainId))) {
-                    $("#connect-wallet-btn").text(connData.userAddress + " | chain id: " + connData.chainId);
-                } else {
-                    $("#connect-wallet-btn").text("not connected");
-                }
-            });
         }
     </script>
 </body>
