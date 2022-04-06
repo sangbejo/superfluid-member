@@ -3,7 +3,6 @@ const {expectRevert} = require("../../utils/expectRevert");
 const {toBN, toWad} = require("@decentral.ee/web3-helpers");
 const TestEnvironment = require("../../TestEnvironment");
 const traveler = require("ganache-time-traveler");
-const expectCustomErrorRevert = require("./expectCustomRevert");
 
 const TOGA = artifacts.require("TOGA");
 const TokenCustodian = artifacts.require("TokenCustodian");
@@ -196,7 +195,7 @@ describe("TOGA", function () {
         // fail with same amount (needs to be strictly greater)
         // fails to trigger if the timestamp is 1s off (happens sometimes randomly)
         // this detracting 1s exit flowrate
-        await expectCustomErrorRevert(
+        await expectRevert(
             sendPICBid(
                 bob,
                 superToken,
@@ -248,7 +247,7 @@ describe("TOGA", function () {
 
     it("#4 enforce min exit rate limit", async () => {
         // lower limit: 0 wei/second (no negative value allowed)
-        await expectCustomErrorRevert(
+        await expectRevert(
             sendPICBid(alice, superToken, BOND_AMOUNT_1E18, -1),
             "NegativeExitRateNotAllowed()"
         );
@@ -261,7 +260,7 @@ describe("TOGA", function () {
         const bondAmount = BOND_AMOUNT_1E18;
         const maxRate = shouldMaxExitRate(bondAmount);
 
-        await expectCustomErrorRevert(
+        await expectRevert(
             sendPICBid(alice, superToken, bondAmount, maxRate + 1),
             "ExitRateTooHigh()"
         );
@@ -325,7 +324,7 @@ describe("TOGA", function () {
         await sendPICBid(alice, superToken, BOND_AMOUNT_2E18);
 
         await t.upgradeBalance("bob", t.configs.INIT_BALANCE);
-        await expectCustomErrorRevert(
+        await expectRevert(
             sendPICBid(bob, superToken, BOND_AMOUNT_1E18),
             "BidTooLow()"
         );
@@ -393,7 +392,7 @@ describe("TOGA", function () {
     it("#11 PIC can change exit rate - limits enforced", async () => {
         await sendPICBid(alice, superToken, BOND_AMOUNT_1E18);
 
-        await expectCustomErrorRevert(
+        await expectRevert(
             toga.changeExitRate(superToken.address, EXIT_RATE_1, {
                 from: bob,
             }),
@@ -401,7 +400,7 @@ describe("TOGA", function () {
         );
 
         // don't allow negative exitRate
-        await expectCustomErrorRevert(
+        await expectRevert(
             toga.changeExitRate(superToken.address, -1, {from: alice}),
             "NegativeExitRateNotAllowed()"
         );
@@ -436,7 +435,7 @@ describe("TOGA", function () {
         // due to the exit flow, the remaining bond changes with every new block
         const max2 = shouldMaxExitRate(bond);
         assert.equal(max1.toString(), max2.toString());
-        await expectCustomErrorRevert(
+        await expectRevert(
             toga.changeExitRate(superToken.address, max2 + 1, {
                 from: alice,
             }),
@@ -527,7 +526,7 @@ describe("TOGA", function () {
         );
 
         // alice tries to re-establish stream - fail because no bond left
-        await expectCustomErrorRevert(
+        await expectRevert(
             toga.changeExitRate(superToken.address, EXIT_RATE_1, {
                 from: alice,
             }),
@@ -553,7 +552,7 @@ describe("TOGA", function () {
             .bond;
 
         // bob outbids
-        await expectCustomErrorRevert(
+        await expectRevert(
             sendPICBid(bob, superToken, 1, 0),
             "BidTooLow()"
         );
@@ -582,11 +581,11 @@ describe("TOGA", function () {
         assert.equal(await toga.getCurrentPIC(superToken.address), alice);
         assert.equal(await toga.getCurrentPIC(superToken2.address), bob);
 
-        await expectCustomErrorRevert(
+        await expectRevert(
             toga.changeExitRate(superToken2.address, 0, {from: alice}),
             "OnlyPICAllowed()"
         );
-        await expectCustomErrorRevert(
+        await expectRevert(
             toga.changeExitRate(superToken.address, 0, {from: bob}),
             "OnlyPICAllowed()"
         );
@@ -599,7 +598,7 @@ describe("TOGA", function () {
         const bobBondLeft = (await toga.getCurrentPICInfo(superToken2.address))
             .bond;
 
-        await expectCustomErrorRevert(
+        await expectRevert(
             sendPICBid(alice, superToken2, BOND_AMOUNT_1E18, EXIT_RATE_1),
             "BidTooLow()"
         );

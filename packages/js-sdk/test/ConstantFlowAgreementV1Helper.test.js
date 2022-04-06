@@ -1,6 +1,6 @@
 const {toBN} = require("@decentral.ee/web3-helpers");
 /* eslint-disable-next-line max-len */
-const expectCustomErrorRevert = require("@superfluid-finance/ethereum-contracts/test/contracts/utils/expectCustomRevert");
+const expectRevert = require("@superfluid-finance/ethereum-contracts/test/utils/expectRevert");
 const TestEnvironment = require("@superfluid-finance/ethereum-contracts/test/TestEnvironment");
 
 describe("ConstantFlowAgreementV1Helper class", function () {
@@ -228,7 +228,7 @@ describe("ConstantFlowAgreementV1Helper class", function () {
         });
 
         it("by wrong person", async () => {
-            await expectCustomErrorRevert(
+            await expectRevert(
                 sf.cfa.deleteFlow({
                     superToken: superToken.address,
                     sender: alice,

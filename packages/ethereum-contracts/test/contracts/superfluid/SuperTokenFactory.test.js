@@ -11,7 +11,6 @@ const SuperTokenFactoryMockHelper = artifacts.require(
 const SuperTokenMock = artifacts.require("SuperTokenMock");
 
 const TestEnvironment = require("../../TestEnvironment");
-const expectCustomErrorRevert = require("../utils/expectCustomRevert");
 
 const {web3tx} = require("@decentral.ee/web3-helpers");
 
@@ -72,7 +71,7 @@ describe("SuperTokenFactory Contract", function () {
 
         it("#1.3 only host can update the code", async () => {
             assert.equal(await factory.getHost.call(), superfluid.address);
-            await expectCustomErrorRevert(
+            await expectRevert(
                 factory.updateCode(ZERO_ADDRESS),
                 "OnlyHostCanUpdateCode()"
             );
@@ -123,7 +122,7 @@ describe("SuperTokenFactory Contract", function () {
                     (await superToken1.waterMark.call()).toString(),
                     "0"
                 );
-                await expectCustomErrorRevert(
+                await expectRevert(
                     governance.batchUpdateSuperTokenLogic(superfluid.address, [
                         superToken1.address,
                     ]),
@@ -175,7 +174,7 @@ describe("SuperTokenFactory Contract", function () {
                     (await superToken1.waterMark.call()).toString(),
                     "42"
                 );
-                await expectCustomErrorRevert(
+                await expectRevert(
                     governance.batchUpdateSuperTokenLogic(superfluid.address, [
                         superToken1.address,
                     ]),
@@ -256,7 +255,7 @@ describe("SuperTokenFactory Contract", function () {
         });
 
         it("#2.c.1 should fail on ZERO_ADDRESS", async () => {
-            await expectCustomErrorRevert(
+            await expectRevert(
                 factory.createERC20Wrapper(
                     ZERO_ADDRESS,
                     18,

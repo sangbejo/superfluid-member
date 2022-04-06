@@ -10,7 +10,6 @@ const {
     shouldBehaveLikeERC20Transfer,
     shouldBehaveLikeERC20Approve,
 } = require("./ERC20.behavior");
-const expectCustomErrorRevert = require("../utils/expectCustomRevert");
 
 const SuperTokenMock = artifacts.require("SuperTokenMock");
 
@@ -281,7 +280,7 @@ describe("SuperToken's ERC20 compliance", function () {
             const spender = ZERO_ADDRESS;
 
             it("reverts", async function () {
-                await expectCustomErrorRevert(
+                await expectRevert(
                     this.token.increaseAllowance(spender, amount, {
                         from: alice,
                     }),
@@ -306,7 +305,7 @@ describe("SuperToken's ERC20 compliance", function () {
 
         describe("when the sender is the zero address", function () {
             it("reverts", async function () {
-                await expectCustomErrorRevert(
+                await expectRevert(
                     this.token.transferInternal(
                         ZERO_ADDRESS,
                         bob,
@@ -333,7 +332,7 @@ describe("SuperToken's ERC20 compliance", function () {
 
         describe("when the owner is the zero address", function () {
             it("reverts", async function () {
-                await expectCustomErrorRevert(
+                await expectRevert(
                     this.token.approveInternal(
                         ZERO_ADDRESS,
                         bob,

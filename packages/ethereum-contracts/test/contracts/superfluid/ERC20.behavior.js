@@ -1,7 +1,6 @@
 // NOTE: copied and modified from https://github.com/OpenZeppelin/openzeppelin-contracts/
 const {BN, constants, expectEvent} = require("@openzeppelin/test-helpers");
 const {expect} = require("chai");
-const expectCustomErrorRevert = require("../utils/expectCustomRevert");
 const {ZERO_ADDRESS} = constants;
 const {expectRevert} = require("../../utils/expectRevert");
 
@@ -141,7 +140,7 @@ function shouldBehaveLikeERC20(errorPrefix, initialSupply, setupAccounts) {
                         const amount = initialSupply.addn(1);
 
                         it("reverts", async function () {
-                            await expectCustomErrorRevert(
+                            await expectRevert(
                                 this.token.transferFrom(
                                     tokenOwner,
                                     to,
@@ -183,7 +182,7 @@ function shouldBehaveLikeERC20(errorPrefix, initialSupply, setupAccounts) {
                         const amount = initialSupply.addn(1);
 
                         it("reverts", async function () {
-                            await expectCustomErrorRevert(
+                            await expectRevert(
                                 this.token.transferFrom(
                                     tokenOwner,
                                     to,
@@ -208,7 +207,7 @@ function shouldBehaveLikeERC20(errorPrefix, initialSupply, setupAccounts) {
                 });
 
                 it("reverts", async function () {
-                    await expectCustomErrorRevert(
+                    await expectRevert(
                         this.token.transferFrom(tokenOwner, to, amount, {
                             from: spender,
                         }),
@@ -228,7 +227,7 @@ function shouldBehaveLikeERC20(errorPrefix, initialSupply, setupAccounts) {
             });
 
             it("reverts", async function () {
-                await expectCustomErrorRevert(
+                await expectRevert(
                     this.token.transferFrom(tokenOwner, to, amount, {
                         from: spender,
                     }),
@@ -269,7 +268,7 @@ function shouldBehaveLikeERC20Transfer(
             const amount = balance.addn(1);
 
             it("reverts", async function () {
-                await expectCustomErrorRevert(
+                await expectRevert(
                     transfer.call(this, from, to, amount),
                     "MoveAmountExceedsBalance()"
                 );
@@ -331,7 +330,7 @@ function shouldBehaveLikeERC20Transfer(
 
     describe("when the recipient is the zero address", function () {
         it("reverts", async function () {
-            await expectCustomErrorRevert(
+            await expectRevert(
                 transfer.call(this, from, ZERO_ADDRESS, balance),
                 "TransferToZeroAddress()"
             );
@@ -431,7 +430,7 @@ function shouldBehaveLikeERC20Approve(
 
     describe("when the spender is the zero address", function () {
         it("reverts", async function () {
-            await expectCustomErrorRevert(
+            await expectRevert(
                 approve.call(this, owner, ZERO_ADDRESS, supply),
                 "ApproveToZeroAddress()"
             );

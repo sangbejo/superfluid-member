@@ -4,7 +4,6 @@ const TestEnvironment = require("../../TestEnvironment");
 const SuperUpgrader = artifacts.require("SuperUpgrader");
 
 const {web3tx, toWad} = require("@decentral.ee/web3-helpers");
-const expectCustomErrorRevert = require("../utils/expectCustomRevert");
 
 const DEFAULT_ADMIN_ROLE =
     "0x0000000000000000000000000000000000000000000000000000000000000000";
@@ -58,12 +57,12 @@ describe("Superfluid Super Upgrader Contract", function () {
         it("#1.2 Should revert without owner address", async () => {
             const backendWithZero = [...backend];
             backendWithZero.push(ZERO_ADDRESS);
-            await expectCustomErrorRevert(
+            await expectRevert(
                 SuperUpgrader.new(ZERO_ADDRESS, new Array()),
                 "EmptyAdminRole()"
             );
 
-            await expectCustomErrorRevert(
+            await expectRevert(
                 SuperUpgrader.new(admin, backendWithZero),
                 "EmptyBackend()"
             );
@@ -89,7 +88,7 @@ describe("Superfluid Super Upgrader Contract", function () {
             )(upgrader.address, toWad("3"), {
                 from: alice,
             });
-            await expectCustomErrorRevert(
+            await expectRevert(
                 upgrader.upgrade(superToken.address, alice, toWad("3"), {
                     from: eve,
                 }),
@@ -261,7 +260,7 @@ describe("Superfluid Super Upgrader Contract", function () {
                 "Alice opt-out"
             )({from: alice});
 
-            await expectCustomErrorRevert(
+            await expectRevert(
                 upgrader.upgrade(superToken.address, alice, toWad("3"), {
                     from: backend[0],
                 }),
@@ -327,7 +326,7 @@ describe("Superfluid Super Upgrader Contract", function () {
                 "address should be in backend role"
             );
 
-            await expectCustomErrorRevert(
+            await expectRevert(
                 upgrader.grantBackendAgent(ZERO_ADDRESS, {from: admin}),
                 "OperationNotAllowed()"
             );
