@@ -1,8 +1,9 @@
+const {expectRevert} = require("../../utils/expectRevert");
+
 const TestEnvironment = require("../../TestEnvironment");
 const BatchLiquidator = artifacts.require("BatchLiquidator");
 
 const traveler = require("ganache-time-traveler");
-const expectCustomErrorRevert = require("./expectCustomRevert");
 
 describe("Superfluid Liquidator Contract", function () {
     this.timeout(300e3);
@@ -148,7 +149,7 @@ describe("Superfluid Liquidator Contract", function () {
         });
 
         it("#1.4 Revert if size of senders and receivers don't match", async () => {
-            await expectCustomErrorRevert(
+            await expectRevert(
                 batch.deleteFlows(
                     t.sf.host.address,
                     t.sf.agreements.cfa.address,

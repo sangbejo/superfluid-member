@@ -1,4 +1,5 @@
 const {expectEvent} = require("@openzeppelin/test-helpers");
+const {expectRevert} = require("../../utils/expectRevert");
 
 const ISuperTokenFactory = artifacts.require("ISuperTokenFactory");
 const TestEnvironment = require("../../TestEnvironment");
@@ -6,7 +7,6 @@ const ISETH = artifacts.require("ISETH");
 const SETHProxy = artifacts.require("SETHProxy");
 
 const {web3tx, toBN, toWad} = require("@decentral.ee/web3-helpers");
-const expectCustomErrorRevert = require("../utils/expectCustomRevert");
 
 describe("Super ETH (SETH) Contract", function () {
     this.timeout(300e3);
@@ -113,7 +113,7 @@ describe("Super ETH (SETH) Contract", function () {
             from: alice,
         });
 
-        await expectCustomErrorRevert(
+        await expectRevert(
             seth.downgradeToETH(toWad(1).addn(1), {from: alice}),
             "BurnAmountExceedsBalance()"
         );

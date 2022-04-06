@@ -1,13 +1,9 @@
 // NOTE: copied and modified from https://github.com/OpenZeppelin/openzeppelin-contracts/
-const {
-    BN,
-    constants,
-    expectEvent,
-    expectRevert,
-} = require("@openzeppelin/test-helpers");
+const {BN, constants, expectEvent} = require("@openzeppelin/test-helpers");
 const {expect} = require("chai");
 const expectCustomErrorRevert = require("../utils/expectCustomRevert");
 const {ZERO_ADDRESS} = constants;
+const {expectRevert} = require("../../utils/expectRevert");
 
 function shouldBehaveLikeERC20(errorPrefix, initialSupply, setupAccounts) {
     let initialHolder, recipient, anotherAccount;

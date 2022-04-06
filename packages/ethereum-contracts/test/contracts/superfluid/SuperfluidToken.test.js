@@ -1,3 +1,5 @@
+const {expectRevert} = require("../../utils/expectRevert");
+
 const {
     web3tx,
     //toBN
@@ -6,7 +8,6 @@ const {
 } = require("@decentral.ee/web3-helpers");
 
 const TestEnvironment = require("../../TestEnvironment");
-const expectCustomErrorRevert = require("../utils/expectCustomRevert");
 const AgreementMock = artifacts.require("AgreementMock");
 
 describe("SuperfluidToken implementation", function () {
@@ -252,7 +253,7 @@ describe("SuperfluidToken implementation", function () {
                     "0x42",
                     testData
                 );
-                await expectCustomErrorRevert(
+                await expectRevert(
                     acA.createAgreementFor(
                         superToken.address,
                         "0x42",
@@ -261,13 +262,13 @@ describe("SuperfluidToken implementation", function () {
                     "AgreementAlreadyExists()"
                 );
                 // try overlapping data
-                await expectCustomErrorRevert(
+                await expectRevert(
                     acA.createAgreementFor(superToken.address, "0x42", [
                         testData[0],
                     ]),
                     "AgreementAlreadyExists()"
                 );
-                await expectCustomErrorRevert(
+                await expectRevert(
                     acA.createAgreementFor(superToken.address, "0x42", [
                         ...testData,
                         ...testData,
@@ -330,7 +331,7 @@ describe("SuperfluidToken implementation", function () {
                     acA.terminateAgreementFor,
                     "terminateAgreementFor"
                 )(superToken.address, "0x42", 2);
-                await expectCustomErrorRevert(
+                await expectRevert(
                     acA.terminateAgreementFor(superToken.address, "0x42", 2),
                     "AgreementDoesNotExists()"
                 );
@@ -429,7 +430,7 @@ describe("SuperfluidToken implementation", function () {
                     web3.utils.sha3("typeBad"),
                     1
                 );
-                await expectCustomErrorRevert(
+                await expectRevert(
                     acBad.settleBalanceFor(superToken.address, bob, "1"),
                     "OnlyListedAgreement()"
                 );
@@ -468,7 +469,7 @@ describe("SuperfluidToken implementation", function () {
                 web3.utils.sha3("typeBad"),
                 1
             );
-            await expectCustomErrorRevert(
+            await expectRevert(
                 acBad.makeLiquidationPayoutsFor(
                     superToken.address,
                     "0x42",

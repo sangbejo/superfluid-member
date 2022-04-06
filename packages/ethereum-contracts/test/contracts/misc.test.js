@@ -1,8 +1,7 @@
 const TestEnvironment = require("../TestEnvironment");
 
 const {toBN} = require("@decentral.ee/web3-helpers");
-const {expectRevert} = require("@openzeppelin/test-helpers");
-const expectCustomErrorRevert = require("./utils/expectCustomRevert");
+const {expectRevert} = require("../utils/expectRevert");
 
 const DEFAULT_ADMIN_ROLE =
     "0x0000000000000000000000000000000000000000000000000000000000000000";
@@ -32,12 +31,12 @@ describe("Miscellaneous for test coverages", function () {
             const proxiable = await UUPSProxiableMock.at(proxy.address);
             const uuid1 = web3.utils.sha3("UUPSProxiableMock1");
             const mock = await UUPSProxiableMock.new(uuid1, 1);
-            await expectCustomErrorRevert(
+            await expectRevert(
                 proxy.initializeProxy(ZERO_ADDRESS),
                 "LogicZeroAddress()"
             );
             await proxy.initializeProxy(mock.address);
-            await expectCustomErrorRevert(
+            await expectRevert(
                 proxy.initializeProxy(mock.address),
                 "AlreadyInitialized()"
             );
@@ -54,7 +53,7 @@ describe("Miscellaneous for test coverages", function () {
             const mock2 = await UUPSProxiableMock.new(uuid2, 1);
 
             assert.equal(await mock1a.getCodeAddress(), ZERO_ADDRESS);
-            await expectCustomErrorRevert(
+            await expectRevert(
                 mock1a.updateCode(mock1a.address),
                 "NotUpgradeable()"
             );
@@ -68,7 +67,7 @@ describe("Miscellaneous for test coverages", function () {
             assert.equal(await proxiable.proxiableUUID(), uuid1);
             assert.equal(await proxiable.waterMark(), 2);
 
-            await expectCustomErrorRevert(
+            await expectRevert(
                 proxiable.updateCode(mock2.address),
                 "NonCompatibleLogic()"
             );
@@ -80,7 +79,7 @@ describe("Miscellaneous for test coverages", function () {
 
         it("Resolver.set should only be called by admin", async () => {
             const resolver = await Resolver.new({from: admin});
-            await expectCustomErrorRevert(
+            await expectRevert(
                 resolver.set("alice", alice, {from: alice}),
                 "NonAdminCaller()"
             );

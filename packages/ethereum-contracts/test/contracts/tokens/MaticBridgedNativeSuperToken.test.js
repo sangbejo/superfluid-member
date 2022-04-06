@@ -1,4 +1,5 @@
-const {expectRevert, expectEvent} = require("@openzeppelin/test-helpers");
+const {expectEvent} = require("@openzeppelin/test-helpers");
+const {expectRevert} = require("../../utils/expectRevert");
 
 const ISuperTokenFactory = artifacts.require("ISuperTokenFactory");
 const TestEnvironment = require("../../TestEnvironment");
@@ -10,7 +11,6 @@ const IMaticBridgedNativeSuperToken = artifacts.require(
 );
 
 const {web3tx, toWad} = require("@decentral.ee/web3-helpers");
-const expectCustomErrorRevert = require("../utils/expectCustomRevert");
 
 describe("MaticBridgedNativeSuperTokenProxy Contract", function () {
     this.timeout(300e3);
@@ -81,7 +81,7 @@ describe("MaticBridgedNativeSuperTokenProxy Contract", function () {
             "MBT"
         );
 
-        await expectCustomErrorRevert(
+        await expectRevert(
             token.deposit(
                 bob,
                 web3.eth.abi.encodeParameter("uint256", AMOUNT_1)
@@ -95,14 +95,14 @@ describe("MaticBridgedNativeSuperTokenProxy Contract", function () {
             {from: chainMgr}
         );
 
-        await expectCustomErrorRevert(
+        await expectRevert(
             token.withdraw(AMOUNT_1, {from: eve}),
             "BurnAmountExceedsBalance()"
         );
 
         await token.withdraw(AMOUNT_1, {from: bob});
 
-        await expectCustomErrorRevert(
+        await expectRevert(
             token.updateChildChainManager(bob, {from: eve}),
             "OnlyGovernanceAllowed()"
         );

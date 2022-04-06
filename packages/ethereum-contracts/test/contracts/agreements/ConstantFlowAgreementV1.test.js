@@ -1,6 +1,7 @@
 const TestEnvironment = require("../../TestEnvironment");
 
-const {BN, expectEvent, expectRevert} = require("@openzeppelin/test-helpers");
+const {BN, expectEvent} = require("@openzeppelin/test-helpers");
+const {expectRevert} = require("../../utils/expectRevert");
 const {web3tx, toWad, toBN} = require("@decentral.ee/web3-helpers");
 const {
     shouldCreateFlow,
@@ -10,7 +11,6 @@ const {
 
 const traveler = require("ganache-time-traveler");
 const CFADataModel = require("./ConstantFlowAgreementV1.data.js");
-const expectCustomErrorRevert = require("../utils/expectCustomRevert");
 
 const TEST_TRAVEL_TIME = 3600 * 24; // 24 hours
 
@@ -306,7 +306,7 @@ describe("Using ConstantFlowAgreement v1", function () {
             // there is also some issue with _getAgreementData => token.getAgreementData
             // => FixedSizeData.loadData
             it("#1.1.2 should reject when there is not enough balance", async () => {
-                await expectCustomErrorRevert(
+                await expectRevert(
                     t.sf.cfa.createFlow({
                         superToken: superToken.address,
                         sender: t.aliases[sender],
@@ -318,7 +318,7 @@ describe("Using ConstantFlowAgreement v1", function () {
             });
 
             it("#1.1.3 should reject when zero flow rate", async () => {
-                await expectCustomErrorRevert(
+                await expectRevert(
                     t.sf.cfa.createFlow({
                         superToken: superToken.address,
                         sender: t.aliases[sender],
@@ -330,7 +330,7 @@ describe("Using ConstantFlowAgreement v1", function () {
             });
 
             it("#1.1.4 should reject when negative flow rate", async () => {
-                await expectCustomErrorRevert(
+                await expectRevert(
                     t.sf.cfa.createFlow({
                         superToken: superToken.address,
                         sender: t.aliases[sender],
@@ -342,7 +342,7 @@ describe("Using ConstantFlowAgreement v1", function () {
             });
 
             it("#1.1.5 should reject when self flow", async () => {
-                await expectCustomErrorRevert(
+                await expectRevert(
                     t.sf.cfa.createFlow({
                         superToken: superToken.address,
                         sender: t.aliases[sender],
@@ -387,7 +387,7 @@ describe("Using ConstantFlowAgreement v1", function () {
             });
 
             it("#1.1.8 should reject when receiver is zero address", async () => {
-                await expectCustomErrorRevert(
+                await expectRevert(
                     t.sf.cfa.createFlow({
                         superToken: superToken.address,
                         sender: t.aliases[sender],
@@ -449,7 +449,7 @@ describe("Using ConstantFlowAgreement v1", function () {
             });
 
             it("#1.2.4 should not update with zero flow rate", async () => {
-                await expectCustomErrorRevert(
+                await expectRevert(
                     t.sf.cfa.updateFlow({
                         superToken: superToken.address,
                         sender: t.aliases[sender],
@@ -461,7 +461,7 @@ describe("Using ConstantFlowAgreement v1", function () {
             });
 
             it("#1.2.5 should not update with negative flow rate", async () => {
-                await expectCustomErrorRevert(
+                await expectRevert(
                     t.sf.cfa.updateFlow({
                         superToken: superToken.address,
                         sender: t.aliases[sender],
@@ -473,7 +473,7 @@ describe("Using ConstantFlowAgreement v1", function () {
             });
 
             it("#1.2.6 should not update non existing flow", async () => {
-                await expectCustomErrorRevert(
+                await expectRevert(
                     t.sf.cfa.updateFlow({
                         superToken: superToken.address,
                         sender: t.aliases[sender],
@@ -485,7 +485,7 @@ describe("Using ConstantFlowAgreement v1", function () {
             });
 
             it("#1.2.7 should not update non existing flow (self flow)", async () => {
-                await expectCustomErrorRevert(
+                await expectRevert(
                     t.sf.cfa.updateFlow({
                         superToken: superToken.address,
                         sender: t.aliases[sender],
@@ -497,7 +497,7 @@ describe("Using ConstantFlowAgreement v1", function () {
             });
 
             it("#1.2.8 should reject when there is not enough balance", async () => {
-                await expectCustomErrorRevert(
+                await expectRevert(
                     t.sf.cfa.updateFlow({
                         superToken: superToken.address,
                         sender: t.aliases[sender],
@@ -523,7 +523,7 @@ describe("Using ConstantFlowAgreement v1", function () {
             });
 
             it("#1.2.10 should reject when receiver is zero address", async () => {
-                await expectCustomErrorRevert(
+                await expectRevert(
                     t.sf.cfa.updateFlow({
                         superToken: superToken.address,
                         sender: t.aliases[sender],
@@ -594,7 +594,7 @@ describe("Using ConstantFlowAgreement v1", function () {
             });
 
             it("#1.3.3 should not delete non-existing flow", async () => {
-                await expectCustomErrorRevert(
+                await expectRevert(
                     t.sf.cfa.deleteFlow({
                         superToken: superToken.address,
                         sender: t.aliases[sender],
@@ -605,7 +605,7 @@ describe("Using ConstantFlowAgreement v1", function () {
             });
 
             it("#1.3.4 should reject when receiver is zero address", async () => {
-                await expectCustomErrorRevert(
+                await expectRevert(
                     t.sf.cfa.deleteFlow({
                         superToken: superToken.address,
                         sender: t.aliases[sender],
@@ -616,7 +616,7 @@ describe("Using ConstantFlowAgreement v1", function () {
             });
 
             it("#1.3.5 should reject when sender is zero address", async () => {
-                await expectCustomErrorRevert(
+                await expectRevert(
                     t.sf.cfa.deleteFlow({
                         superToken: superToken.address,
                         sender: ZERO_ADDRESS,
@@ -645,7 +645,7 @@ describe("Using ConstantFlowAgreement v1", function () {
             });
 
             it("#1.4.1 should reject when SenderNotCritical()", async () => {
-                await expectCustomErrorRevert(
+                await expectRevert(
                     t.sf.cfa.deleteFlow({
                         superToken: superToken.address,
                         sender: t.aliases[sender],
@@ -657,7 +657,7 @@ describe("Using ConstantFlowAgreement v1", function () {
             });
 
             it("#1.4.2 should reject when sender is zero address", async () => {
-                await expectCustomErrorRevert(
+                await expectRevert(
                     t.sf.cfa.deleteFlow({
                         superToken: superToken.address,
                         sender: ZERO_ADDRESS,
@@ -669,7 +669,7 @@ describe("Using ConstantFlowAgreement v1", function () {
             });
 
             it("#1.4.3 should reject when SenderNotCritical()", async () => {
-                await expectCustomErrorRevert(
+                await expectRevert(
                     t.sf.cfa.deleteFlow({
                         superToken: superToken.address,
                         sender: t.aliases[sender],
@@ -1881,7 +1881,7 @@ describe("Using ConstantFlowAgreement v1", function () {
             });
 
             it("#1.6.6 should reject when account is not critical", async () => {
-                await expectCustomErrorRevert(
+                await expectRevert(
                     t.sf.cfa.deleteFlow({
                         superToken: superToken.address,
                         sender: t.aliases[sender],
@@ -1891,7 +1891,7 @@ describe("Using ConstantFlowAgreement v1", function () {
                     "SenderNotCritical()"
                 );
 
-                await expectCustomErrorRevert(
+                await expectRevert(
                     t.sf.cfa.deleteFlow({
                         superToken: superToken.address,
                         sender: t.aliases[sender],
@@ -1901,7 +1901,7 @@ describe("Using ConstantFlowAgreement v1", function () {
                     "SenderNotCritical()"
                 );
 
-                await expectCustomErrorRevert(
+                await expectRevert(
                     t.sf.cfa.deleteFlow({
                         superToken: superToken.address,
                         sender: t.aliases[agent],
@@ -1956,7 +1956,7 @@ describe("Using ConstantFlowAgreement v1", function () {
                     allowCriticalAccount: true,
                 });
 
-                await expectCustomErrorRevert(
+                await expectRevert(
                     t.sf.cfa.deleteFlow({
                         superToken: superToken.address,
                         sender: t.aliases[sender],
@@ -2010,7 +2010,7 @@ describe("Using ConstantFlowAgreement v1", function () {
                     allowCriticalAccount: true,
                 });
 
-                await expectCustomErrorRevert(
+                await expectRevert(
                     t.sf.cfa.deleteFlow({
                         superToken: superToken.address,
                         sender: t.aliases[sender],
@@ -2081,7 +2081,7 @@ describe("Using ConstantFlowAgreement v1", function () {
                 await test("10000000000000");
                 const maxDeposit = toBN(1).shln(95).subn(1);
                 await test(maxDeposit);
-                expectCustomErrorRevert(
+                expectRevert(
                     test(maxDeposit.addn(1)),
                     "DepositTooBig()"
                 );
@@ -2114,7 +2114,7 @@ describe("Using ConstantFlowAgreement v1", function () {
                 await test(0);
                 await test(1);
                 await test("10000000000000");
-                await expectCustomErrorRevert(
+                await expectRevert(
                     cfa.getDepositRequiredForFlowRate.call(
                         superToken.address,
                         toBN("-100000000000000")
@@ -2125,7 +2125,7 @@ describe("Using ConstantFlowAgreement v1", function () {
                     .shln(95)
                     .div(toBN(LIQUIDATION_PERIOD));
                 await test(maxFlowRate);
-                await expectCustomErrorRevert(
+                await expectRevert(
                     test(maxFlowRate.addn(1)),
                     "FlowRateTooBig()"
                 );
@@ -2146,7 +2146,7 @@ describe("Using ConstantFlowAgreement v1", function () {
                 } catch (error) {
                     console.error(error);
                 }
-                await expectCustomErrorRevert(
+                await expectRevert(
                     fakeHost.callAgreement(
                         cfa.address,
                         cfa.contract.methods
@@ -2156,7 +2156,7 @@ describe("Using ConstantFlowAgreement v1", function () {
                     ),
                     "UnauthorizedHost()"
                 );
-                await expectCustomErrorRevert(
+                await expectRevert(
                     fakeHost.callAgreement(
                         cfa.address,
                         cfa.contract.methods
@@ -2369,7 +2369,7 @@ describe("Using ConstantFlowAgreement v1", function () {
                         t.configs.MINIMUM_DEPOSIT.add(toBN(1))
                     )
                 );
-                await expectCustomErrorRevert(
+                await expectRevert(
                     shouldCreateFlow({
                         testenv: t,
                         superToken,
@@ -2806,7 +2806,7 @@ describe("Using ConstantFlowAgreement v1", function () {
                 },
             };
 
-            await expectCustomErrorRevert(
+            await expectRevert(
                 shouldCreateFlow({
                     testenv: t,
                     superToken,
@@ -3019,7 +3019,7 @@ describe("Using ConstantFlowAgreement v1", function () {
             await expectNetFlow(receiver1, mfaFlowRate(FLOW_RATE1, 50));
             await expectNetFlow(receiver2, mfaFlowRate(FLOW_RATE1, 50));
 
-            await expectCustomErrorRevert(
+            await expectRevert(
                 t.sf.cfa.deleteFlow({
                     superToken: superToken.address,
                     sender: t.aliases[sender],
@@ -3104,7 +3104,7 @@ describe("Using ConstantFlowAgreement v1", function () {
             await expectNetFlow(receiver1, mfaFlowRate(FLOW_RATE1, 75));
             await expectNetFlow(receiver2, mfaFlowRate(FLOW_RATE1, 75));
 
-            await expectCustomErrorRevert(
+            await expectRevert(
                 t.sf.cfa.deleteFlow({
                     superToken: superToken.address,
                     sender: app.address,
@@ -3254,7 +3254,7 @@ describe("Using ConstantFlowAgreement v1", function () {
         });
 
         it("#2.20 createFlow via app action should respect deposit rule", async () => {
-            await expectCustomErrorRevert(
+            await expectRevert(
                 t.sf.host.callAppAction(
                     app.address,
                     app.contract.methods
@@ -3287,7 +3287,7 @@ describe("Using ConstantFlowAgreement v1", function () {
                 },
             };
 
-            await expectCustomErrorRevert(
+            await expectRevert(
                 shouldCreateFlow({
                     testenv: t,
                     superToken,
@@ -3518,7 +3518,7 @@ describe("Using ConstantFlowAgreement v1", function () {
             )(cfa.address, superfluid.address, superToken2.address);
             t.addAlias("app", app.address);
 
-            await expectCustomErrorRevert(
+            await expectRevert(
                 web3tx(
                     t.sf.cfa.createFlow,
                     "alice -> app"
@@ -3751,7 +3751,7 @@ describe("Using ConstantFlowAgreement v1", function () {
         });
 
         it("#10.4 ctx should not be exploited", async () => {
-            await expectCustomErrorRevert(
+            await expectRevert(
                 superfluid.callAgreement(
                     cfa.address,
                     cfa.contract.methods

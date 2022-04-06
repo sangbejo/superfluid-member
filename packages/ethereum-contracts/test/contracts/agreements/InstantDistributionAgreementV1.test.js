@@ -12,6 +12,8 @@ const {
     shouldClaimPendingDistribution,
 } = require("./InstantDistributionAgreementV1.behaviour.js");
 
+const {expectRevert} = require("../../utils/expectRevert");
+
 const IDASuperAppTester = artifacts.require("IDASuperAppTester");
 const TestEnvironment = require("../../TestEnvironment");
 const expectCustomErrorRevert = require("../utils/expectCustomRevert.js");
