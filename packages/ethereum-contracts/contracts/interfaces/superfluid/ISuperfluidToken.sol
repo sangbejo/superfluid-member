@@ -79,13 +79,13 @@ interface ISuperfluidToken {
             uint256 owedDeposit);
 
     /**
-     * @notice Calculate the realtime balance given the current block.timestamp value
+     * @notice Calculate the realtime balance given the current host.getNow() value
      * @dev realtimeBalanceOf with timestamp equals to block timestamp
      * @param account for the query
      * @return availableBalance Real-time balance
      * @return deposit Account deposit
      * @return owedDeposit Account owed Deposit
-     */ 
+     */
     function realtimeBalanceOfNow(
        address account
     )
@@ -101,7 +101,7 @@ interface ISuperfluidToken {
     * @dev A critical account is when availableBalance < 0
     * @param account The account to check
     * @param timestamp The time we'd like to check if the account is critical (should use future)
-    * @return isCritical Whether the account is critical 
+    * @return isCritical Whether the account is critical
     */
     function isAccountCritical(
         address account,
@@ -111,7 +111,7 @@ interface ISuperfluidToken {
         returns(bool isCritical);
 
     /**
-    * @notice Check if account is critical now (current block.timestamp)
+    * @notice Check if account is critical now (current host.getNow())
     * @dev A critical account is when availableBalance < 0
     * @param account The account to check
     * @return isCritical Whether the account is critical
