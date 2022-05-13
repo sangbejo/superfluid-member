@@ -20,7 +20,7 @@ const emptyIda = {
     },
 };
 
-describe("User helper class", function () {
+describe.only("User helper class", function () {
     this.timeout(300e3);
     const t = TestEnvironment.getSingleton();
 
@@ -80,7 +80,7 @@ describe("User helper class", function () {
         });
     });
 
-    describe.skip("details", () => {
+    describe("details", () => {
         it("shows user details", async () => {
             await alice.flow({
                 recipient: bob.address,
@@ -132,7 +132,7 @@ describe("User helper class", function () {
         });
     });
 
-    describe.skip("new flows", () => {
+    describe("new flows", () => {
         it("fail without recipient", async () => {
             await expect(
                 alice.flow({
@@ -150,17 +150,70 @@ describe("User helper class", function () {
                 })
             ).to.be.rejectedWith(/You must provide a recipient and flowRate/);
         });
-        it("create a new flow", async () => {
+        it.only("create a new flow", async () => {
+            // Getting the block number before the flow
+            console.log("before", await web3.eth.getBlockNumber())
+
             await alice.flow({
                 recipient: bob.address,
                 flowRate: "38580246913580", // 100 / mo
             });
+
+            // Getting the block number after the flow - Looks good moved by a block
+            console.log("after",await web3.eth.getBlockNumber())
+
+            // Trying to send a flow afterwards should edit it , but it tries to create a new flow and
+            // reverts because one already exists
+
+            // await alice.flow({
+            //     recipient: bob.address,
+            //     flowRate: "123", // 100 / mo
+            // })
+
+            // If you would try to set the flow to 0 it would revert with saying that the flow is not existing
+
+            // await alice.flow({
+            //     recipient: bob.address,
+            //     flowRate: "0", // 100 / mo
+            // });
+
             // validate flow data
-            const flow = await sf.cfa.getFlow({
+            let flow = await sf.cfa.getFlow({
                 superToken: superToken.address,
                 sender: alice.address,
                 receiver: bob.address,
             });
+
+            txBlock = await web3.eth.getBlockNumber();
+
+            //The superfluid user also shows no info about the flow
+            console.log(await alice.details());
+
+            //Tried getting the flow data with different methods, still no luck
+            let actualNetFlowRate = await sf.cfa.getNetFlow(
+                superToken.address,
+                alice.address
+            );
+
+            //Tried to just create a loop that would should update the flow
+            //But this just turns into an infinite loop
+            while(flow.flowRate == "0") {
+                txBlock = await web3.eth.getBlockNumber();
+
+                actualNetFlowRate = await t.contracts.cfa.getNetFlow(
+                    superToken.address,
+                    alice.address
+                );
+
+                console.log(txBlock.toString())
+                console.log(actualNetFlowRate.toString())
+                flow = await sf.cfa.getFlow({
+                    superToken: superToken.address,
+                    sender: alice.address,
+                    receiver: bob.address,
+                });
+            }
+
             assert.equal(flow.flowRate, "38580246913580");
             assert.notEqual(flow.deposit, "0");
             assert.equal(flow.owedDeposit, "0");
@@ -210,7 +263,7 @@ describe("User helper class", function () {
         });
     });
 
-    describe.skip("existing flows", () => {
+    describe("existing flows", () => {
         beforeEach(async () => {
             await alice.flow({
                 recipient: bob.address,
@@ -238,7 +291,7 @@ describe("User helper class", function () {
         });
     });
 
-    describe.skip("pools", () => {
+    describe("pools", () => {
         const poolId = 1;
         beforeEach(async () => {
             await alice.createPool({poolId});
