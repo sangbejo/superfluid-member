@@ -189,12 +189,6 @@ describe.only("User helper class", function () {
             //The superfluid user also shows no info about the flow
             console.log(await alice.details());
 
-            //Tried getting the flow data with different methods, still no luck
-            let actualNetFlowRate = await sf.cfa.getNetFlow(
-                superToken.address,
-                alice.address
-            );
-
             //Tried to just create a loop that would should update the flow
             //But this just turns into an infinite loop
             while(flow.flowRate == "0") {
