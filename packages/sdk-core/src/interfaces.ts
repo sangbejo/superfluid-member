@@ -469,7 +469,13 @@ export interface IWeb3RealTimeBalanceOf {
 export interface IWeb3Subscription {
     readonly exist: boolean;
     readonly approved: boolean;
+    /**
+     * shares a user has in an index
+     */
     readonly units: string;
+    /**
+     * if approved, 0, else pending claimable amount
+     */
     readonly pendingDistribution: string;
 }
 
@@ -488,9 +494,19 @@ export interface IWeb3FlowInfoParams {
 }
 
 export interface IWeb3FlowInfo {
+    /**
+     * timestamp is updatedAt for when the flow was last updated
+     */
     readonly timestamp: Date;
     readonly flowRate: string;
+    /**
+     * deposit = buffer
+     */
     readonly deposit: string;
+    /**
+     * owedDeposit = amount you have borrowed to superapp which
+     * starts another stream upon the initial stream
+     */
     readonly owedDeposit: string;
 }
 
@@ -506,8 +522,25 @@ export interface IWeb3FlowOperatorData {
 }
 
 export interface IWeb3GovernanceParams {
+    /**
+     * liquidationPeriod = bufferPeriod
+     * the amount of time in seconds to multiply by flowRate to get
+     * the upfront buffer required for starting a stream
+     */
     readonly liquidationPeriod: string;
+    /**
+     * particianPeriod
+     * the amount of time in seconds where only the patrician can close
+     * streams of users who have a critical balance (< 0)
+     */
     readonly patricianPeriod: string;
+    /**
+     * the address of the patrician/
+     */
     readonly rewardAddress: string;
+    /**
+     * the minimum buffer required regardless of the flowRate and
+     * liquidationPeriod
+     */
     readonly minimumDeposit: string;
 }
