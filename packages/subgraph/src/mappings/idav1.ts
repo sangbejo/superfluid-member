@@ -264,6 +264,7 @@ export function handleSubscriptionApproved(event: SubscriptionApproved): void {
     }
 
     subscription.save();
+    
 
     updateTokenStatsStreamedUntilUpdatedAt(event.params.token, event.block);
 
