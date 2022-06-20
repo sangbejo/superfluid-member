@@ -61,19 +61,19 @@ contract MoneyRouter {
         token.transferFrom(msg.sender, address(this), amount);
     }
 
-    function createFlowIntoContract(ISuperfluidToken token, int96 flowRate) external {
+    function createFlowIntoContract(ISuperToken token, int96 flowRate) external {
         require(msg.sender == owner || accountList[msg.sender] == true, "must be authorized");
 
         cfaV1.createFlowByOperator(msg.sender, address(this), token, flowRate);
     }
 
-    function updateFlowIntoContract(ISuperfluidToken token, int96 newFlowRate) external {
+    function updateFlowIntoContract(ISuperToken token, int96 newFlowRate) external {
         require(msg.sender == owner || accountList[msg.sender] == true, "must be authorized");
 
         cfaV1.updateFlowByOperator(msg.sender, address(this), token, newFlowRate);
     }
 
-    function deleteFlowIntoContract(ISuperfluidToken token) external {
+    function deleteFlowIntoContract(ISuperToken token) external {
         require(msg.sender == owner || accountList[msg.sender] == true, "must be authorized");
 
         cfaV1.deleteFlow(msg.sender, address(this), token);
@@ -84,17 +84,17 @@ contract MoneyRouter {
         token.transfer(msg.sender, amount);
     }
 
-    function createFlowFromContract(ISuperfluidToken token, address receiver, int96 flowRate) external {
+    function createFlowFromContract(ISuperToken token, address receiver, int96 flowRate) external {
         require(msg.sender == owner || accountList[msg.sender] == true, "must be authorized");
         cfaV1.createFlow(receiver, token, flowRate);
     }
 
-    function updateFlowFromContract(ISuperfluidToken token, address receiver, int96 newFlowRate) external {
+    function updateFlowFromContract(ISuperToken token, address receiver, int96 newFlowRate) external {
         require(msg.sender == owner || accountList[msg.sender] == true, "must be authorized");
         cfaV1.updateFlow(receiver, token, newFlowRate);
     }
 
-    function deleteFlowFromContract(ISuperfluidToken token, address receiver) external {
+    function deleteFlowFromContract(ISuperToken token, address receiver) external {
         require(msg.sender == owner || accountList[msg.sender] == true, "must be authorized");
         cfaV1.deleteFlow(address(this), receiver, token);
     }

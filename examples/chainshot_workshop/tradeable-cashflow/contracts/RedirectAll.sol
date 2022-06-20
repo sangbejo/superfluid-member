@@ -13,7 +13,7 @@ contract RedirectAll is SuperAppBase {
 
     using CFAv1Library for CFAv1Library.InitData;
 
-    CFAv1Library.InitData public cfaV1Lib;
+    CFAv1Library.InitData public cfaV1;
     bytes32 constant public CFA_ID = keccak256("org.superfluid-finance.agreements.ConstantFlowAgreement.v1");
 
     ISuperToken private _acceptedToken; // accepted token
@@ -31,7 +31,7 @@ contract RedirectAll is SuperAppBase {
         _acceptedToken = acceptedToken;
         _receiver = receiver;
 
-        cfaV1Lib = CFAv1Library.InitData(
+        cfaV1 = CFAv1Library.InitData(
             host,
             IConstantFlowAgreementV1(
                 address(host.getAgreementClass(CFA_ID))
@@ -61,7 +61,7 @@ contract RedirectAll is SuperAppBase {
         )
     {
         if (_receiver != address(0)) {
-            (startTime, flowRate, , ) = cfaV1Lib.cfa.getFlow(
+            (startTime, flowRate, , ) = cfaV1.cfa.getFlow(
                 _acceptedToken,
                 address(this),
                 _receiver
@@ -77,71 +77,12 @@ contract RedirectAll is SuperAppBase {
         private
         returns (bytes memory newCtx)
     {
-        newCtx = ctx;
-        // @dev This will give me the new flowRate, as it is called in after callbacks
-        int96 netFlowRate = cfaV1Lib.cfa.getNetFlow(_acceptedToken, address(this));
-        (, int96 outFlowRate, , ) = cfaV1Lib.cfa.getFlow(
-            _acceptedToken,
-            address(this),
-            _receiver
-        ); 
-        int96 inFlowRate = netFlowRate + outFlowRate;
-
-        // @dev If inFlowRate === 0, then delete existing flow.
-        if (inFlowRate == int96(0)) {
-            // @dev if inFlowRate is zero, delete outflow.
-            newCtx = cfaV1Lib.deleteFlowWithCtx(
-                newCtx,
-                address(this),
-                _receiver,
-                _acceptedToken
-            );
-        } else if (outFlowRate != int96(0)) {
-            newCtx = cfaV1Lib.updateFlowWithCtx(
-                newCtx,
-                _receiver,
-                _acceptedToken,
-                inFlowRate
-            );
-        } else {
-            // @dev If there is no existing outflow, then create new flow to equal inflow
-            newCtx = cfaV1Lib.createFlowWithCtx(
-                newCtx,
-                _receiver,
-                _acceptedToken,
-                inFlowRate
-            );
-        }
+       //TODO
     }
 
     // @dev Change the Receiver of the total flow
     function _changeReceiver(address newReceiver) internal {
-        require(newReceiver != address(0), "New receiver is zero address");
-        // @dev because our app is registered as final, we can't take downstream apps
-        require(
-            !cfaV1Lib.host.isApp(ISuperApp(newReceiver)),
-            "New receiver can not be a superApp"
-        );
-        if (newReceiver == _receiver) return;
-        // @dev delete flow to old receiver
-        (, int96 outFlowRate, , ) = cfaV1Lib.cfa.getFlow(
-            _acceptedToken,
-            address(this),
-            _receiver
-        ); //CHECK: unclear what happens if flow doesn't exist.
-        if (outFlowRate > 0) {
-            cfaV1Lib.deleteFlow(address(this), _receiver, _acceptedToken);
-            // @dev create flow to new receiver
-            cfaV1Lib.createFlow(
-                newReceiver,
-                _acceptedToken,
-                cfaV1Lib.cfa.getNetFlow(_acceptedToken, address(this))
-            );
-        }
-        // @dev set global receiver to new receiver
-        _receiver = newReceiver;
-
-        emit ReceiverChanged(_receiver);
+        //TODO
     }
 
     /**************************************************************************
@@ -206,7 +147,7 @@ contract RedirectAll is SuperAppBase {
 
     modifier onlyHost() {
         require(
-            msg.sender == address(cfaV1Lib.host),
+            msg.sender == address(cfaV1.host),
             "RedirectAll: support only one host"
         );
         _;

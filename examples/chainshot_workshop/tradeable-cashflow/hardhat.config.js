@@ -9,11 +9,16 @@ require('hardhat-deploy');
  
  module.exports = {
   // defaultNetwork,
-  // networks: {
+   networks: {
     // ganache: {
     //     url: "127.0.0.1",
     //     port: process.env.GANACHE_PORT || 8545,
     // },
+
+    goerli: {
+      url: process.env.GOERLI_URL,
+      accounts: [`${process.env.PRIVATE_KEY}`]
+    }
 
     // kovan: {
     //   url: `${process.env.KOVAN_RPC_URL}`,
@@ -24,7 +29,7 @@ require('hardhat-deploy');
     //   timeoutBlocks: 50, // # of blocks before a deployment times out  (minimum/default: 50)
     //   skipDryRun: false // Skip dry run before migrations? (default: false for public nets )
     //   },
-    // },
+    },
  
      solidity: {
       version: "0.8.13",
