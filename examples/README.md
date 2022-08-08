@@ -1,6 +1,6 @@
 # Welcome to the Superfluid Examples Repo 🚀
 
-Here, you'll find examples that can help you get started with Superfluid. 
+Here, you'll find examples that can help you get started with Superfluid.
 
 To add an example, you can open a PR and contact the Superfluid team in the #developers channel of our [Discord](http://discord.superfluid.finance).
 
@@ -14,7 +14,7 @@ We recommend that all testing is done using the Superfluid SDK Core, as the JS-S
 2) The Streaming Call Option
     - Proof of concept which allows you to create a tradeable option NFT where premium is paid for over time via a stream
 3) Rewards Distribution Token
-    - A ERC20 token that tokenizes units in Superfluid [Instant Distribution Agreements](https://docs.superfluid.finance/superfluid/protocol-developers/interactive-tutorials/instant-distribution). 
+    - A ERC20 token that tokenizes units in Superfluid [Instant Distribution Agreements](https://docs.superfluid.finance/superfluid/protocol-developers/interactive-tutorials/instant-distribution).
 4) Continuous Auction
     - A continuous auction where users can enter by sending a stream to the contract. In principle, the highest bid is the winner of the auction.
 5) Flowlottery
@@ -30,7 +30,6 @@ We recommend that all testing is done using the Superfluid SDK Core, as the JS-S
 10) Employment Based Loan
     - A smart contract framework for allowing employees to borrow money using their salary as a form of automatic repayment.
 
-
 #### What Other Examples Would You Like to See?
 - Please reach out to our team with example suggestions, or feel free to write your own and open up a PR!
-- We also have several bounties open regarding current examples that need to be re-written with the latest technologies. Check out our issues to learn more. 
+- We also have several bounties open regarding current examples that need to be re-written with the latest technologies. Check out our issues to learn more.
