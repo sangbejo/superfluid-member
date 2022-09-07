@@ -63,7 +63,7 @@ echo SUPERFLUID_SUPER_TOKEN_LOGIC
 if [ -z "$NO_FORCE_CONSTRUCTOR_ARGS" ];then
     # it is required to provide the constructor arguments manually, because the super token logic is created through a contract not an EOA
     SUPERFLUID_SUPER_TOKEN_LOGIC_CONSTRUCTOR_ARGS=$(node -e 'console.log("'${SUPERFLUID_HOST_PROXY}'".toLowerCase().slice(2).padStart(64, "0"))')
-    try_verify SuperToken@${SUPERFLUID_SUPER_TOKEN_LOGIC} --forceConstructorArgs string:${SUPERFLUID_SUPER_TOKEN_LOGIC_CONSTRUCTOR_ARGS} --custom-proxy UUPSProxy
+    try_verify SuperToken@${SUPERFLUID_SUPER_TOKEN_LOGIC} --forceConstructorArgs string:${SUPERFLUID_SUPER_TOKEN_LOGIC_CONSTRUCTOR_ARGS}
 else
     echo "!!! WARNING !!! Cannot verify super token logic due to forceConstructorArgs not supported."
 fi
