@@ -46,7 +46,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16.x
-          cache: "yarn"
+          cache: "pnpm"
 
       - name: Build
         run: |
