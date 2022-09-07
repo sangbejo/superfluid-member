@@ -92,6 +92,8 @@ jq -s '.[0] * .[1]' \
 }
 EOF
     ) > build/contracts/InstantDistributionAgreementV1.json
+# it's not clear why, but IDA verification tends to fails unless first verifying the logic contract alone
+try_verify InstantDistributionAgreementV1@${IDA_LOGIC}
 try_verify InstantDistributionAgreementV1@${IDA_PROXY} --custom-proxy UUPSProxy
 mv -f build/contracts/InstantDistributionAgreementV1.json.bak build/contracts/InstantDistributionAgreementV1.json
 
