@@ -10,6 +10,9 @@ import {config as dotenvConfig} from "dotenv";
 import {NetworkUserConfig} from "hardhat/types";
 import "solidity-docgen";
 import {relative} from "path";
+import "hardhat-erc1820";
+import * as tdly from "@tenderly/hardhat-tenderly";
+tdly.setup();
 
 try {
     dotenvConfig();
@@ -75,12 +78,12 @@ const config: HardhatUserConfig = {
         },
     },
     networks: {
-        hardhat: {
-            hardfork: "merge"
-        },
+        // hardhat: {
+        //     hardfork: "merge"
+        // },
         localhost: {
-            ...createNetworkConfig("localhost"),
-            url: "http://0.0.0.0:8545/",
+            url: "http://127.0.0.1:8545/",
+            chainId: 31337
         },
         "bsc-mainnet": {
             ...createNetworkConfig("bsc-mainnet"),
@@ -145,6 +148,10 @@ const config: HardhatUserConfig = {
                 : undefined,
     },
     typechain: {target: "ethers-v5"},
+    tenderly: {
+        project: "sf-debug",
+        username: "vincent-superfluid"
+    }
 };
 
 export default config;
