@@ -117,10 +117,7 @@ function createNetworkDefaultConfiguration(
         provider: () =>
             new HDWalletProvider({
                 mnemonic: getEnvValue(networkName, "MNEMONIC"),
-                url: providerWrapper(
-                    process.env.OVERRIDE_PROVIDER_URL ||
-                        getEnvValue(networkName, "PROVIDER_URL")
-                ),
+                url: providerWrapper(getEnvValue(networkName, "PROVIDER_URL")),
                 addressIndex: 0,
                 numberOfAddresses: 10,
                 shareNonce: true,
