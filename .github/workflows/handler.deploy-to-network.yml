@@ -28,7 +28,9 @@ jobs:
       RELEASE_VERSION: ${{ github.event.inputs.release_version }}
       DEFAULT_MNEMONIC: ${{ secrets.BUILD_AGENT_MNEMONIC }}
       OVERRIDE_PROVIDER_URL: ${{ github.event.inputs.provider_url }}
-      # web3 providers
+      # testnet web3 providers (leaving for testing)
+      AVALANCHE_FUJI_PROVIDER_URL: ${{ secrets.AVALANCHE_FUJI_PROVIDER_URL }}
+      # mainnet web3 providers
       XDAI_MAINNET_PROVIDER_URL: ${{ secrets.XDAI_MAINNET_PROVIDER_URL }}
       POLYGON_MAINNET_PROVIDER_URL: ${{ secrets.POLYGON_MAINNET_PROVIDER_URL }}
       OPTIMISM_MAINNET_PROVIDER_URL: ${{ secrets.OPTIMISM_MAINNET_PROVIDER_URL }}
@@ -54,6 +56,17 @@ jobs:
         run: |
           cd packages/ethereum-contracts
           echo "${{ github.event.inputs.environments }}" | sed 's/;/\n/' > .env
-          npx truffle exec --network ${{ github.event.inputs.network }} scripts/deploy-framework.js
+          mkdir tmp
+          npx truffle exec --network ${{ github.event.inputs.network }} scripts/deploy-framework.js : tmp/contract-addresses.txt
         env:
           GOVERNANCE_ADMIN_TYPE: MULTISIG
+
+      - name: Upload new contract addresses
+        uses: ./build-scripts/s3cloudfront-hosting/actions/sync
+        with:
+          local_build_dir: packages/ethereum-contracts/tmp
+          aws_region: eu-west-2
+          aws_access_key_id: ${{ secrets.SITE_DEPLOYER_AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.SITE_DEPLOYER_AWS_SECRET_ACCESS_KEY }}
+          s3_uri: ${{ format('{0}{1}contract-addrs@{1}', secrets.SITE_DEPLOYER_AWS_S3_DOCS_URI, github.event.inputs.network, github.run_id) }}
+          cloudfront_distribution_id: E3SV855CTC9UJO
