@@ -10,9 +10,6 @@ on:
       network:
         description: 'Network on which to deploy/upgrade'
         required: true
-      provider_url:
-        description: 'HTTP or WS RPC provider (overrides the one preset in GH env)'
-        required: false
       environments:
         description: 'Additional env vars, separated by semicolons'
         required: false
@@ -27,7 +24,6 @@ jobs:
     env:
       RELEASE_VERSION: ${{ github.event.inputs.release_version }}
       DEFAULT_MNEMONIC: ${{ secrets.BUILD_AGENT_MNEMONIC }}
-      OVERRIDE_PROVIDER_URL: ${{ github.event.inputs.provider_url }}
       # testnet web3 providers (leaving for testing)
       AVALANCHE_FUJI_PROVIDER_URL: ${{ secrets.AVALANCHE_FUJI_PROVIDER_URL }}
       # mainnet web3 providers
