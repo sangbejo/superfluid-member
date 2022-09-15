@@ -24,10 +24,11 @@ contract SuperfluidNFT is ERC721, Ownable {
 
     using Strings for uint256;
 
-    ISuperfluid internal _host;
-    IConstantFlowAgreementV1 internal _cfa;
+    // TODO: make internal
+    ISuperfluid public _host;
+    IConstantFlowAgreementV1 public _cfa;
 
-    constructor(ISuperfluid host) ERC721("Superfluid", "SF") {
+    constructor(ISuperfluid host) ERC721("SFNFT", "SFNFT") {
         _host = host;
         _cfa = IConstantFlowAgreementV1(address(_host.getAgreementClass(
             keccak256("org.superfluid-finance.agreements.ConstantFlowAgreement.v1")
@@ -40,13 +41,14 @@ contract SuperfluidNFT is ERC721, Ownable {
         revert NFT_NOT_TRANSFERABLE();
     }
 
-    function mint(address sender, address receiver) public onlyOwner returns(uint256) {
+    function mint(address sender, address receiver) public /*onlyOwner*/ returns(uint256) {
         uint256 tokenId = uint256(keccak256(abi.encode(sender, receiver)));
         _safeMint(receiver, tokenId);
         return tokenId;
     }
 
-    function burn(uint256 tokenId) public onlyOwner {
+    function burn(address sender, address receiver) public /*onlyOwner*/ {
+        uint256 tokenId = uint256(keccak256(abi.encode(sender, receiver)));
         _burn(tokenId);
     }
 
