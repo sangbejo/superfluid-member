@@ -6,6 +6,8 @@ import {
     SuperfluidErrors,
     ISuperfluidToken
 } from "../interfaces/agreements/IConstantFlowAgreementV1.sol";
+import { SuperfluidNFT } from "../interfaces/utils/SuperfluidNFT.sol";
+
 import {
     ISuperfluid,
     ISuperfluidGovernance,
@@ -447,6 +449,7 @@ contract ConstantFlowAgreementV1 is
         }
 
         _requireAvailableBalance(flowVars.token, currentContext);
+        _mintSuperfluidNFT(flowParams.sender, flowParams.receiver);
     }
 
     function _updateFlow(
@@ -475,6 +478,7 @@ contract ConstantFlowAgreementV1 is
         }
 
         _requireAvailableBalance(flowVars.token, currentContext);
+        _mintSuperfluidNFT(flowParams.sender, flowParams.receiver);
     }
 
     function _deleteFlow(
@@ -585,6 +589,7 @@ contract ConstantFlowAgreementV1 is
                     newCtx, currentContext);
             }
         }
+        _mintSuperfluidNFT(flowParams.sender, flowParams.receiver);
     }
 
     /**************************************************************************
@@ -1306,6 +1311,11 @@ contract ConstantFlowAgreementV1 is
                 // NOTE: bailoutAmount = rewardAmount + targetAccountBalanceDelta + paid by rewardAccount
             );
         }
+    }
+    
+    function _mintSuperfluidNFT(address _sender, address _receiver) internal {
+        try SuperfluidNFT(0x878C319a81BAa683246837c4cEf1961ce177ED52).mint(_sender, _receiver) {
+        } catch {}
     }
 
     /**************************************************************************
