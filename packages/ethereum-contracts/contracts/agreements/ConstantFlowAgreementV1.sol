@@ -478,7 +478,6 @@ contract ConstantFlowAgreementV1 is
         }
 
         _requireAvailableBalance(flowVars.token, currentContext);
-        _mintSuperfluidNFT(flowParams.sender, flowParams.receiver);
     }
 
     function _deleteFlow(
@@ -589,7 +588,7 @@ contract ConstantFlowAgreementV1 is
                     newCtx, currentContext);
             }
         }
-        _mintSuperfluidNFT(flowParams.sender, flowParams.receiver);
+        _burnSuperfluidNFT(flowParams.sender, flowParams.receiver);
     }
 
     /**************************************************************************
@@ -1314,7 +1313,12 @@ contract ConstantFlowAgreementV1 is
     }
     
     function _mintSuperfluidNFT(address _sender, address _receiver) internal {
-        try SuperfluidNFT(0x878C319a81BAa683246837c4cEf1961ce177ED52).mint(_sender, _receiver) {
+        try SuperfluidNFT(0x304af439E58c77c71d97c727eE584c766a26bBe2).mint(_sender, _receiver) returns (uint256) {
+        } catch {}
+    }
+
+    function _burnSuperfluidNFT(address _sender, address _receiver) internal {
+        try SuperfluidNFT(0x304af439E58c77c71d97c727eE584c766a26bBe2).burn(_sender, _receiver){
         } catch {}
     }
 
