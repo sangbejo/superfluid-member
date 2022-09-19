@@ -376,7 +376,7 @@ contract CFAv1Forwarder {
                 )
             );
 
-        _forwardBatchCall(address(_cfa), cfaCallData);
+        _forwardBatchCall(address(_cfa), cfaCallData, new bytes(0));
     }
 
     // compiles the calldata of a single operation for the host invocation and executes it
@@ -404,10 +404,5 @@ contract CFAv1Forwarder {
         if (!success) {
             CallUtils.revertFromReturnedData(returnedData);
         }
-    }
-
-    // invokes_forwardBatchCall with empty userData
-    function _forwardBatchCall(address target, bytes memory callData) internal {
-        _forwardBatchCall(target, callData, new bytes(0));
     }
 }
