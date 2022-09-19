@@ -4,7 +4,7 @@ const SuperfluidSDK = require("@superfluid-finance/js-sdk");
 const Resolver = artifacts.require("Resolver");
 
 const SuperfluidLoader = artifacts.require("SuperfluidLoader");
-const AgreementForwarder = artifacts.require("AgreementForwarder");
+const CFAv1Forwarder = artifacts.require("CFAv1Forwarder");
 
 /**
  * @dev Deploy specified contract at a deterministic address (defined by sender, nonce)
@@ -15,9 +15,11 @@ const AgreementForwarder = artifacts.require("AgreementForwarder");
  * @param web3 The web3 instance to be used
  * @param from address to use for funding the deployer account
  *
- * Usage: npx truffle exec scripts/deploy-deterministically.js : {PRIVATE KEY} {CONTRACT NAME} [{NONCE}]
+ * Usage: npx truffle exec scripts/deploy-deterministically.js : {CONTRACT NAME} [{NONCE}]
  *        CONTRACT NAME must be one of SuperfluidLoader, AgreementForwarder
  *        If NONCE is not defined, 1 is assumed (-> first tx done from the deployer account)
+ *
+ * Required ENV var: DETERMINISTIC_DEPLOYER_PK
  *
  * (optional) ENV vars:
  *        GASLIMIT: override the gas limit for networks with misbehaving estimation (Arbitrum)
@@ -33,18 +35,18 @@ module.exports = eval(`(${S.toString()})()`)(async function (
     console.log("======== Deploying deterministically ========");
 
     let nonce = 1;
-    if (args.length === 3) {
+    if (args.length === 2) {
         nonce = parseInt(args.pop());
         if (nonce <= 0) {
             console.error("nonce must be > 0");
             process.exit(1);
         }
-    } else if (args.length !== 2) {
+    } else if (args.length !== 1) {
         throw new Error("Wrong number of arguments");
     }
     const contractName = args.pop();
-    const privKey = args.pop();
 
+    const privKey = process.env.DETERMINISTIC_DEPLOYER_PK;
     const deployer = web3.eth.accounts.privateKeyToAccount(privKey);
     console.log("deployer:", deployer.address);
     console.log("nonce:", nonce);
@@ -67,11 +69,11 @@ module.exports = eval(`(${S.toString()})()`)(async function (
         console.log(
             `setting up SuperfluidLoader for chainId ${chainId}, resolver ${resolverAddr}`
         );
-    } else if (contractName === "AgreementForwarder") {
-        ContractArtifact = AgreementForwarder;
+    } else if (contractName === "CFAv1Forwarder") {
+        ContractArtifact = CFAv1Forwarder;
         deployArgs = [hostAddr];
         console.log(
-            `setting up AgreementForwarder for chainId ${chainId}, host ${hostAddr}`
+            `setting up CFAv1Forwarder for chainId ${chainId}, host ${hostAddr}`
         );
     } else {
         throw new Error("Contract unknown / not supported");
