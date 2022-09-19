@@ -58,7 +58,8 @@ jobs:
           cd packages/ethereum-contracts
           echo "${{ github.event.inputs.environments }}" | sed 's/;/\n/' > .env
           mkdir tmp
-          npx truffle exec --network ${{ github.event.inputs.network }} scripts/deploy-framework.js : tmp/contract-addresses.txt
+          echo "OUTPUT_FILE=tmp/contract-addresses.txt" >> .env
+          npx truffle exec --network ${{ github.event.inputs.network }} scripts/deploy-framework.js
         env:
           GOVERNANCE_ADMIN_TYPE: MULTISIG
 

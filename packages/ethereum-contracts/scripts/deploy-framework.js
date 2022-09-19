@@ -96,12 +96,13 @@ async function deployContractIfCodeChanged(
  *                  (overriding env: RESET_SUPERFLUID_FRAMEWORK)
  * @param {boolean} options.protocolReleaseVersion Specify the protocol release version to be used
  *                  (overriding env: RELEASE_VERSION)
+ * @param {boolean} options.outputFile Name of file where to log addresses of newly deployed contracts
+ *                  (overriding env: OUTPUT_FILE)
  *
- * Usage: npx truffle exec scripts/deploy-framework.js : [ {OUTPUT_FILE} ]
- *        if OUTPUT_FILE is set, addresses of newly deployed contracts are logged to it
+ * Usage: npx truffle exec scripts/deploy-framework.js
  */
 
-module.exports = eval(`(${S.toString()})()`)(async function (
+module.exports = eval(`(${S.toString()})({skipArgv: true})`)(async function (
     args,
     options = {}
 ) {
@@ -112,6 +113,7 @@ module.exports = eval(`(${S.toString()})()`)(async function (
         nonUpgradable,
         appWhiteListing,
         protocolReleaseVersion,
+        outputFile
     } = options;
     resetSuperfluidFramework = options.resetSuperfluidFramework;
 
@@ -119,13 +121,10 @@ module.exports = eval(`(${S.toString()})()`)(async function (
         resetSuperfluidFramework || !!process.env.RESET_SUPERFLUID_FRAMEWORK;
     console.log("reset superfluid framework: ", resetSuperfluidFramework);
 
-    if (args.length !== 0 && args.length !== 1) {
-        throw new Error("Wrong number of arguments");
-    }
-    let outputFilename;
-    if (args.length === 1) {
-        outputFilename = args.pop();
-    }
+    outputFile = outputFile || process.env.OUTPUT_FILE;
+    console.log("output file: ", outputFile);
+
+    // string to build a list of newly deployed contracts, written to a file if "outputFile" option set
     let output = "";
 
     const networkType = await web3.eth.net.getNetworkType();
@@ -591,10 +590,10 @@ module.exports = eval(`(${S.toString()})()`)(async function (
         console.log(`export RESOLVER_ADDRESS=${process.env.RESOLVER_ADDRESS}`);
     }
 
-    if (outputFilename !== undefined) {
-        await util.promisify(fs.writeFile)(outputFilename, output);
+    if (outputFile !== undefined) {
+        await util.promisify(fs.writeFile)(outputFile, output);
         console.log(
-            `List of newly deployed contracts written to ${outputFilename}`
+            `List of newly deployed contracts written to ${outputFile}`
         );
     }
 });
