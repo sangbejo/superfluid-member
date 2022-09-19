@@ -63,11 +63,13 @@ module.exports = eval(`(${S.toString()})()`)(async function (
     }
 
     // we have the right contract, proceeding with new contract deployment
-    console.log("deploying new instance of governance logic...");
+    console.log(
+        "Deploying new instance of SuperfluidGovernanceII (gov logic)..."
+    );
     const govLogic = await sf.contracts.SuperfluidGovernanceII.new();
-    console.log("deployed to", govLogic.address);
+    console.log("Deployed to", govLogic.address);
     await govLogic.castrate();
-    console.log("marked gov logic as initialized (castrate)");
+    console.log("Marked gov logic as initialized (castrate)");
 
     // prepare multisig transaction for executing the upgrade
     const multis = await sf.contracts.IMultiSigWallet.at(
