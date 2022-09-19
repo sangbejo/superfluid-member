@@ -15,6 +15,7 @@ import {
 import { CallUtils } from "../libs/CallUtils.sol";
 
 /**
+ * Contract address: 0xCfA1E187C9141B8bA90a436CB789017FA573d051
  * The CFAv1Forwarder contract provides an easy to use interface to
  * ConstantFlowAgreementV1 specific functionality of Super Tokens.
  * Instances of this contract can operate on the protocol only if configured as "trusted forwarder"
