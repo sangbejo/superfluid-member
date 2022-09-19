@@ -113,7 +113,7 @@ module.exports = eval(`(${S.toString()})({skipArgv: true})`)(async function (
         nonUpgradable,
         appWhiteListing,
         protocolReleaseVersion,
-        outputFile
+        outputFile,
     } = options;
     resetSuperfluidFramework = options.resetSuperfluidFramework;
 
