@@ -1,4 +1,4 @@
-name: Deploy to Network
+name: Deploy to Mainnet
 
 on:
   workflow_dispatch:
@@ -8,7 +8,7 @@ on:
         required: true
         default: 'v1'
       network:
-        description: 'Network on which to deploy/upgrade'
+        description: 'Mainnet on which to deploy/upgrade'
         required: true
       environments:
         description: 'Additional env vars, separated by semicolons'
@@ -16,8 +16,8 @@ on:
 
 jobs:
 
-  deploy-to-network:
-    name: Deploy to network
+  deploy-to-mainnet:
+    name: Deploy to mainnet
 
     runs-on: ubuntu-latest
 
@@ -58,10 +58,10 @@ jobs:
           cd packages/ethereum-contracts
           echo "${{ github.event.inputs.environments }}" | sed 's/;/\n/' > .env
           mkdir tmp
-          echo "OUTPUT_FILE=tmp/contract-addresses.txt" >> .env
           npx truffle exec --network ${{ github.event.inputs.network }} scripts/deploy-framework.js
         env:
           GOVERNANCE_ADMIN_TYPE: MULTISIG
+          OUTPUT_FILE: tmp/contract-addresses.txt
 
       - name: Upload new contract addresses
         uses: ./build-scripts/s3cloudfront-hosting/actions/sync
